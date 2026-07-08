@@ -41,12 +41,22 @@ export default function Navbar({ user }: NavbarProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* 로고 */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-blue-600 shrink-0">
-            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0"  y="0"  width="10" height="10" rx="2.5" fill="#2563EB"/>
+              <rect x="13" y="0"  width="10" height="10" rx="2.5" fill="#2563EB"/>
+              <rect x="26" y="0"  width="10" height="10" rx="2.5" fill="#93C5FD"/>
+              <rect x="0"  y="13" width="10" height="10" rx="2.5" fill="#2563EB"/>
+              <rect x="13" y="13" width="10" height="10" rx="2.5" fill="#93C5FD"/>
+              <rect x="26" y="13" width="10" height="10" rx="2.5" fill="#DBEAFE"/>
+              <rect x="0"  y="26" width="10" height="10" rx="2.5" fill="#93C5FD"/>
+              <rect x="13" y="26" width="10" height="10" rx="2.5" fill="#DBEAFE"/>
+              <rect x="26" y="26" width="10" height="10" rx="2.5" fill="#EFF6FF"/>
             </svg>
-            픽셀러
+            <div className="flex flex-col leading-none">
+              <span className="text-xl font-bold text-gray-900 tracking-tight">픽셀러</span>
+              <span className="text-[10px] font-medium text-blue-400 tracking-widest">PIXELLER</span>
+            </div>
           </Link>
 
           {/* 데스크탑 네비게이션 */}

@@ -10,6 +10,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pickseller.co.kr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   title: {
     default: "픽셀러 — 무료 셀러 키워드 분석 & 마진 계산기",
     template: "%s | 픽셀러",
