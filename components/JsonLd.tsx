@@ -189,14 +189,6 @@ export function HomeFaqJsonLd() {
       },
       {
         "@type": "Question",
-        name: "아이템스카우트와 픽셀러의 차이는 무엇인가요?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "아이템스카우트는 유료 구독 서비스인 반면, 픽셀러는 핵심 기능을 완전 무료로 제공합니다. 키워드 트렌드 분석과 마진 계산 등 소싱에 필요한 핵심 기능에 집중하고 있습니다.",
-        },
-      },
-      {
-        "@type": "Question",
         name: "키워드 데이터는 어디서 가져오나요?",
         acceptedAnswer: {
           "@type": "Answer",
