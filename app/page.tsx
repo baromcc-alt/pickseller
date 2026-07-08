@@ -3,6 +3,7 @@ import Link from "next/link";
 import KeywordSearchForm from "@/components/KeywordSearchForm";
 import AdSlot from "@/components/ads/AdSlot";
 import TrendingKeywords from "@/components/TrendingKeywords";
+import FaqSection from "@/components/FaqSection";
 import { HomeFaqJsonLd } from "@/components/JsonLd";
 import { getFirstCategoryRanking } from "@/app/actions/trending-keywords";
 
@@ -89,6 +90,9 @@ export default async function HomePage() {
           <AdSlot format="rectangle" label="광고" className="mt-2" />
         </div>
       </section>
+
+      {/* FAQ */}
+      <FaqSection />
 
       {/* 하단 광고 */}
       <section className="flex justify-center">
