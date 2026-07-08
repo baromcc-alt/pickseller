@@ -21,16 +21,16 @@ export async function getProfile() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .single() as { data: Record<string, string> | null; error: unknown };
 
   return profile
     ? {
-        id: profile.id,
-        email: profile.email,
-        displayName: profile.display_name,
-        avatarUrl: profile.avatar_url,
-        createdAt: profile.created_at,
-        updatedAt: profile.updated_at,
+        id: profile["id"],
+        email: profile["email"],
+        displayName: profile["display_name"],
+        avatarUrl: profile["avatar_url"],
+        createdAt: profile["created_at"],
+        updatedAt: profile["updated_at"],
         // auth.users의 마지막 로그인 시각
         lastSignInAt: user.last_sign_in_at ?? null,
         // 소셜 로그인 제공자
