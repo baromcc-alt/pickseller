@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { Database } from "@/types/database";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 // ────────────────────────────────────────────
 // 현재 로그인 유저 프로필 조회
@@ -21,19 +24,19 @@ export async function getProfile() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single() as { data: Record<string, string> | null; error: unknown };
+    .single();
 
-  return profile
+  const p = profile as Profile | null;
+
+  return p
     ? {
-        id: profile["id"],
-        email: profile["email"],
-        displayName: profile["display_name"],
-        avatarUrl: profile["avatar_url"],
-        createdAt: profile["created_at"],
-        updatedAt: profile["updated_at"],
-        // auth.users의 마지막 로그인 시각
+        id: p.id,
+        email: p.email,
+        displayName: p.display_name,
+        avatarUrl: p.avatar_url,
+        createdAt: p.created_at,
+        updatedAt: p.updated_at,
         lastSignInAt: user.last_sign_in_at ?? null,
-        // 소셜 로그인 제공자
         provider: user.app_metadata?.provider ?? "email",
       }
     : null;
@@ -54,7 +57,7 @@ export async function updateDisplayName(displayName: string) {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ display_name: displayName })
+    .update({ display_name: displayName } as Database["public"]["Tables"]["profiles"]["Update"])
     .eq("id", user.id);
 
   if (error) throw new Error(error.message);

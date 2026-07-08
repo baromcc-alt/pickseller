@@ -67,6 +67,36 @@ export interface Database {
           expires_at?: string;
         };
       };
+      keyword_rankings: {
+        Row: {
+          id: string;
+          category: string;
+          keyword: string;
+          rank: number;
+          score: number;
+          score_prev: number | null;
+          trend: string;
+          ranked_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          category: string;
+          keyword: string;
+          rank: number;
+          score: number;
+          score_prev?: number | null;
+          trend?: string;
+          ranked_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          rank?: number;
+          score?: number;
+          score_prev?: number | null;
+          trend?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
