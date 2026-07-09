@@ -171,6 +171,53 @@ export function MarginCalculatorJsonLd() {
 }
 
 // ────────────────────────────────────────────
+// 가이드 페이지 — Article 스키마
+// ────────────────────────────────────────────
+
+interface ArticleJsonLdProps {
+  title: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified?: string;
+}
+
+export function ArticleJsonLd({ title, description, url, datePublished, dateModified }: ArticleJsonLdProps) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    url,
+    datePublished,
+    dateModified: dateModified ?? datePublished,
+    author: {
+      "@type": "Organization",
+      name: "픽셀러",
+      url: BASE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "픽셀러",
+      url: BASE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${BASE_URL}/favicon.svg`,
+      },
+    },
+    inLanguage: "ko-KR",
+    isPartOf: { "@type": "WebSite", url: BASE_URL, name: "픽셀러" },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+// ────────────────────────────────────────────
 // 홈페이지 FAQPage
 // ────────────────────────────────────────────
 

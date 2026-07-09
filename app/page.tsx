@@ -91,6 +91,32 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 가이드 배너 */}
+      <section className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-900 text-lg">📖 셀러 가이드</h2>
+          <Link href="/guides" className="text-sm text-blue-500 hover:text-blue-700 transition-colors">
+            전체 보기 →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {guideLinks.map((g) => (
+            <Link
+              key={g.href}
+              href={g.href}
+              className="card p-4 hover:border-blue-200 hover:shadow-sm transition-all group"
+            >
+              <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-2 ${g.badgeColor}`}>
+                {g.badge}
+              </span>
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
+                {g.title}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ */}
       <FaqSection />
 
@@ -101,6 +127,27 @@ export default async function HomePage() {
     </div>
   );
 }
+
+const guideLinks = [
+  {
+    href: "/guides/margin-rate-calculation",
+    badge: "마진율 계산",
+    badgeColor: "bg-green-50 text-green-600",
+    title: "마진율 계산법 완전 정복 — 공식·ROI·손익분기",
+  },
+  {
+    href: "/guides/smartstore-fee-guide",
+    badge: "수수료 가이드",
+    badgeColor: "bg-blue-50 text-blue-600",
+    title: "스마트스토어 수수료 완벽 가이드 2026",
+  },
+  {
+    href: "/guides/coupang-margin-calculator",
+    badge: "마진 계산기",
+    badgeColor: "bg-orange-50 text-orange-600",
+    title: "쿠팡 마진 계산기 완벽 가이드 2026",
+  },
+];
 
 const features = [
   {
