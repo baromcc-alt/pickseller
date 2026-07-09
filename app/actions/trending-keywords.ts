@@ -62,8 +62,8 @@ async function buildCategoryRanking(category: KeywordCategory): Promise<RankedKe
         const avg = recent.reduce((sum, d) => sum + d.ratio, 0) / recent.length;
         scores.push({ keyword: result.title, score: Math.round(avg * 10) / 10 });
       }
-    } catch {
-      // 배치 실패 시 해당 키워드 건너뜀
+    } catch (err) {
+      console.error(`[buildCategoryRanking] 배치 실패:`, batch, err);
     }
   }
 

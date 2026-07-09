@@ -26,6 +26,7 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
   );
   const [isPending, startTransition] = useTransition();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategoryId(categoryId);
@@ -41,12 +42,21 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
 
   const handleRefresh = () => {
     setIsRefreshing(true);
+    setRefreshError(null);
     startTransition(async () => {
-      const result = await refreshCategoryRanking(activeCategoryId);
-      if (result) {
-        setRankings((prev) => ({ ...prev, [activeCategoryId]: result }));
+      try {
+        const result = await refreshCategoryRanking(activeCategoryId);
+        if (result && result.keywords.length > 0) {
+          setRankings((prev) => ({ ...prev, [activeCategoryId]: result }));
+        } else {
+          setRefreshError("네이버 API 호출에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+      } catch (e) {
+        setRefreshError("갱신 중 오류가 발생했습니다.");
+        console.error(e);
+      } finally {
+        setIsRefreshing(false);
       }
-      setIsRefreshing(false);
     });
   };
 
@@ -98,6 +108,13 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
           </button>
         ))}
       </div>
+
+      {/* 에러 메시지 */}
+      {refreshError && (
+        <div className="px-5 py-2 bg-red-50 text-xs text-red-500 text-center">
+          {refreshError}
+        </div>
+      )}
 
       {/* 랭킹 리스트 */}
       <div className="divide-y divide-gray-50">
