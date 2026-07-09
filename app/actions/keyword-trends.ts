@@ -7,6 +7,10 @@ import type { KeywordTrendResult, NaverTrendDataPoint } from "@/types/naver";
 const DEFAULT_MONTHS = 3;
 const DEFAULT_TIME_UNIT = "week" as const;
 
+// 데이터랩 timeUnit: "week" → 주간 집계 데이터라 7일 캐시로도 충분
+const CACHE_TTL_MS   = 7 * 24 * 60 * 60 * 1000; // 7일 (신선 캐시)
+const STALE_TTL_MS   = 30 * 24 * 60 * 60 * 1000; // 30일 (Stale 허용 기간)
+
 // ────────────────────────────────────────────
 // 단일 키워드 트렌드 조회 (캐시 우선)
 // ────────────────────────────────────────────
@@ -17,29 +21,50 @@ export async function getKeywordTrend(
 ): Promise<KeywordTrendResult> {
   const supabase = await createClient();
   const normalizedKeyword = keyword.trim().toLowerCase();
+  const now = new Date();
 
-  // 1. 캐시 조회 — expires_at이 현재 시각보다 미래인 레코드만
-  const { data: cached } = await supabase
+  // 1. 최신 캐시 조회 (만료 여부 무관 — stale 포함)
+  const { data: latestCache } = await supabase
     .from("keyword_trends")
     .select("*")
     .eq("keyword", normalizedKeyword)
     .eq("time_unit", DEFAULT_TIME_UNIT)
     .eq("months", months)
-    .gt("expires_at", new Date().toISOString())
     .order("fetched_at", { ascending: false })
     .limit(1)
     .single();
 
-  if (cached) {
-    return {
-      keyword: cached.keyword,
-      trends: cached.trend_data as KeywordTrendResult["trends"],
-      fetchedAt: cached.fetched_at,
-      fromCache: true,
-    };
+  if (latestCache) {
+    const expiresAt = new Date(latestCache.expires_at);
+    const fetchedAt = new Date(latestCache.fetched_at);
+    const staleDeadline = new Date(fetchedAt.getTime() + STALE_TTL_MS);
+    const isFresh = expiresAt > now;
+    const isWithinStale = staleDeadline > now;
+
+    // 신선 캐시 → 즉시 반환
+    if (isFresh) {
+      return {
+        keyword: latestCache.keyword,
+        trends: latestCache.trend_data as KeywordTrendResult["trends"],
+        fetchedAt: latestCache.fetched_at,
+        fromCache: true,
+      };
+    }
+
+    // Stale 캐시 → 즉시 반환 후 백그라운드 갱신 트리거
+    if (isWithinStale) {
+      // 백그라운드 갱신 (응답 블로킹 없음)
+      void refreshKeywordCache(normalizedKeyword, keyword, months, supabase);
+      return {
+        keyword: latestCache.keyword,
+        trends: latestCache.trend_data as KeywordTrendResult["trends"],
+        fetchedAt: latestCache.fetched_at,
+        fromCache: true,
+      };
+    }
   }
 
-  // 2. 캐시 미스 → 네이버 API 호출
+  // 2. 캐시 없음 → API 호출 (최초 검색)
   const apiResponse = await fetchKeywordTrend(keyword, months);
 
   const result = apiResponse.results[0];
@@ -49,10 +74,8 @@ export async function getKeywordTrend(
     ratio: d.ratio,
   }));
 
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
 
-  // 3. Supabase에 캐시 저장
   await supabase.from("keyword_trends").insert({
     keyword: normalizedKeyword,
     time_unit: DEFAULT_TIME_UNIT,
@@ -69,6 +92,43 @@ export async function getKeywordTrend(
     fetchedAt: now.toISOString(),
     fromCache: false,
   };
+}
+
+// 백그라운드 캐시 갱신 (stale 히트 시 비동기 실행)
+async function refreshKeywordCache(
+  normalizedKeyword: string,
+  originalKeyword: string,
+  months: number,
+  supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>
+) {
+  try {
+    const apiResponse = await fetchKeywordTrend(originalKeyword, months);
+    const result = apiResponse.results[0];
+    if (!result) return;
+
+    const trendData = result.data.map((d: NaverTrendDataPoint) => ({
+      keyword: normalizedKeyword,
+      period: d.period,
+      ratio: d.ratio,
+    }));
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
+
+    // 기존 캐시 삭제 후 재삽입
+    await supabase.from("keyword_trends").delete().eq("keyword", normalizedKeyword);
+    await supabase.from("keyword_trends").insert({
+      keyword: normalizedKeyword,
+      time_unit: DEFAULT_TIME_UNIT,
+      months,
+      raw_data: apiResponse,
+      trend_data: trendData,
+      fetched_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+    });
+  } catch (e) {
+    console.error("[refreshKeywordCache] 백그라운드 갱신 실패:", normalizedKeyword, e);
+  }
 }
 
 // ────────────────────────────────────────────
@@ -88,19 +148,20 @@ export async function getKeywordsTrend(
   const supabase = await createClient();
   const normalized = keywords.map((k) => k.trim().toLowerCase());
 
-  // 1. 캐시 일괄 조회
+  // 1. 캐시 일괄 조회 (만료 여부 무관)
   const { data: cachedRows } = await supabase
     .from("keyword_trends")
     .select("*")
     .in("keyword", normalized)
     .eq("time_unit", DEFAULT_TIME_UNIT)
     .eq("months", months)
-    .gt("expires_at", new Date().toISOString());
+    .order("fetched_at", { ascending: false });
 
-  // 캐시된 키워드 맵 (keyword → row)
-  const cacheMap = new Map(
-    (cachedRows ?? []).map((row) => [row.keyword, row])
-  );
+  // 캐시된 키워드 맵 (keyword → 가장 최신 row)
+  const cacheMap = new Map<string, typeof cachedRows extends (infer T)[] | null ? T : never>();
+  for (const row of cachedRows ?? []) {
+    if (!cacheMap.has(row.keyword)) cacheMap.set(row.keyword, row);
+  }
 
   const results: KeywordTrendResult[] = [];
   const missedKeywords: string[] = [];
@@ -124,7 +185,7 @@ export async function getKeywordsTrend(
     const apiResponse = await fetchKeywordsTrend(missedKeywords, months);
 
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
 
     const insertRows = apiResponse.results.map((result) => {
       const kw = result.title.toLowerCase();
