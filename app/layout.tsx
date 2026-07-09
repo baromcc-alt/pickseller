@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
+  verification: {
+    google: "ai0Y4A9R8eBlDp-7lQDqjjG-bDeov4hyYegJZ91IZgI",
+  },
   title: {
     default: "픽셀러 — 무료 셀러 키워드 분석 & 마진 계산기",
     template: "%s | 픽셀러",
