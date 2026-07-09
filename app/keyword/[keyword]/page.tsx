@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import TrendChart from "@/components/TrendChart";
 import AdSlot from "@/components/ads/AdSlot";
+import SourcingScoreCard from "@/components/SourcingScoreCard";
 import { KeywordPageJsonLd } from "@/components/JsonLd";
 import { getKeywordTrend } from "@/app/actions/keyword-trends";
+import { getSourcingScore } from "@/app/actions/sourcing-score";
 import { POPULAR_KEYWORDS } from "@/app/sitemap";
 import type { KeywordTrendData } from "@/types/naver";
 
@@ -14,7 +16,6 @@ interface Props {
   params: Promise<{ keyword: string }>;
 }
 
-// 인기 키워드는 빌드 타임에 정적 생성 (SSG)
 export async function generateStaticParams() {
   return POPULAR_KEYWORDS.map((keyword) => ({
     keyword: encodeURIComponent(keyword),
@@ -27,14 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pageUrl = `${BASE_URL}/keyword/${encodeURIComponent(decoded)}`;
 
   return {
-    title: `"${decoded}" 키워드 분석 — 검색량 트렌드, 경쟁 강도`,
-    description: `네이버 쇼핑 "${decoded}" 키워드의 월별 검색량 트렌드와 경쟁 강도를 무료로 분석합니다. 스마트스토어·쿠팡 셀러를 위한 데이터 기반 아이템 소싱 도구.`,
-    keywords: [decoded, `${decoded} 검색량`, `${decoded} 트렌드`, `${decoded} 판매`, "키워드 분석", "아이템 소싱"],
+    title: `"${decoded}" 키워드 분석 — 소싱 스코어, 검색량 트렌드`,
+    description: `네이버 쇼핑 "${decoded}" 키워드의 소싱 스코어, 월별 검색량 트렌드, 경쟁 강도를 무료로 분석합니다. 스마트스토어·쿠팡 셀러를 위한 데이터 기반 아이템 소싱 도구.`,
+    keywords: [decoded, `${decoded} 검색량`, `${decoded} 트렌드`, `${decoded} 소싱`, "키워드 분석", "아이템 소싱"],
     alternates: { canonical: pageUrl },
     openGraph: {
       url: pageUrl,
       title: `"${decoded}" 키워드 분석 | 픽셀러`,
-      description: `"${decoded}" 네이버 쇼핑 검색량 트렌드와 경쟁 강도를 무료로 확인하세요.`,
+      description: `"${decoded}" 소싱 스코어, 네이버 쇼핑 검색량 트렌드와 경쟁 강도를 무료로 확인하세요.`,
     },
   };
 }
@@ -54,9 +55,40 @@ export default async function KeywordDetailPage({ params }: Props) {
     trendError = e instanceof Error ? e.message : "트렌드 데이터를 불러오지 못했습니다.";
   }
 
+  // 소싱 스코어 (DataLab + 쇼핑 API 통합) — 실패해도 페이지는 표시
+  const sourcingScore = await getSourcingScore(decoded).catch(() => null);
+
   const updatedAt = trendResult
     ? new Date(trendResult.fetchedAt).toLocaleString("ko-KR")
     : new Date().toLocaleDateString("ko-KR");
+
+  // stats 카드 — 소싱 스코어 데이터로 채움
+  const stats = [
+    {
+      label: "소싱 스코어",
+      value: sourcingScore ? `${sourcingScore.total}점` : "—",
+      change: sourcingScore ? `${sourcingScore.grade}등급 · ${sourcingScore.label}` : "준비 중",
+      changePositive: sourcingScore ? sourcingScore.total >= 50 : true,
+    },
+    {
+      label: "트렌드",
+      value: sourcingScore ? sourcingScore.direction : "—",
+      change: sourcingScore ? `${sourcingScore.momentum > 0 ? "+" : ""}${sourcingScore.momentum}%` : "준비 중",
+      changePositive: sourcingScore ? sourcingScore.momentum >= 0 : true,
+    },
+    {
+      label: "경쟁 강도",
+      value: sourcingScore ? sourcingScore.competitionLevel : "—",
+      change: sourcingScore ? `상품 ${sourcingScore.productCount.toLocaleString()}개` : "준비 중",
+      changePositive: sourcingScore ? sourcingScore.competitionScore >= 20 : true,
+    },
+    {
+      label: "평균 판매가",
+      value: sourcingScore?.avgPrice ? `${sourcingScore.avgPrice.toLocaleString()}원` : "—",
+      change: "네이버 쇼핑 기준",
+      changePositive: true,
+    },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -72,7 +104,7 @@ export default async function KeywordDetailPage({ params }: Props) {
         <span className="text-gray-700 font-medium">{decoded}</span>
       </nav>
 
-      {/* 상단 광고 — 데스크톱 leaderboard / 모바일 mobile-banner */}
+      {/* 상단 광고 */}
       <div className="mb-6 flex justify-center">
         <div className="hidden sm:block w-full max-w-[728px]">
           <AdSlot format="leaderboard" label="광고" />
@@ -100,18 +132,54 @@ export default async function KeywordDetailPage({ params }: Props) {
         </p>
       </div>
 
-      {/* 메인 레이아웃: 콘텐츠 + 사이드바 */}
+      {/* 기능 설명 배너 */}
+      <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50/60 px-5 py-4">
+        <p className="text-sm font-semibold text-blue-800 mb-3">
+          🎯 이 페이지에서 할 수 있는 것
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex items-start gap-2.5">
+            <span className="text-base shrink-0 mt-0.5">📊</span>
+            <div>
+              <p className="text-sm font-medium text-gray-800">소싱 스코어 확인</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                검색량·트렌드·경쟁 강도를 종합해 이 키워드가 <strong>지금 팔기 좋은지</strong> 0~100점으로 평가합니다.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="text-base shrink-0 mt-0.5">📈</span>
+            <div>
+              <p className="text-sm font-medium text-gray-800">검색량 트렌드 분석</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                최근 3개월 네이버 검색량 흐름으로 <strong>지금이 진입 타이밍인지</strong> 판단하세요.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="text-base shrink-0 mt-0.5">✨</span>
+            <div>
+              <p className="text-sm font-medium text-gray-800">AI 소싱 분석</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                데이터를 AI가 해석해 <strong>소싱 전략과 주의사항</strong>을 바로 제안합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 레이아웃 */}
       <div className="flex gap-6 items-start">
 
         {/* ── 콘텐츠 영역 ── */}
         <div className="flex-1 min-w-0 space-y-6">
 
-          {/* 지표 카드 */}
+          {/* 지표 카드 4개 */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {stats.map((stat) => (
               <div key={stat.label} className="card p-5">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xl font-bold text-gray-900 leading-tight">{stat.value}</p>
                 <p className={`text-xs mt-1 ${stat.changePositive ? "text-green-500" : "text-red-400"}`}>
                   {stat.change}
                 </p>
@@ -138,7 +206,14 @@ export default async function KeywordDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* 모바일 전용 — 본문 중간 광고 */}
+          {/* 모바일 전용 — 소싱 스코어 카드 */}
+          {sourcingScore && (
+            <div className="lg:hidden">
+              <SourcingScoreCard keyword={decoded} score={sourcingScore} />
+            </div>
+          )}
+
+          {/* 모바일 중간 광고 */}
           <div className="sm:hidden flex justify-center">
             <AdSlot format="large-rectangle" label="광고" />
           </div>
@@ -166,6 +241,7 @@ export default async function KeywordDetailPage({ params }: Props) {
                 <h2 className="font-semibold text-gray-900 mb-1">수익성을 계산해보세요</h2>
                 <p className="text-sm text-gray-500">
                   &ldquo;{decoded}&rdquo; 상품의 예상 마진을 바로 계산할 수 있습니다.
+                  {sourcingScore?.avgPrice && ` 평균 판매가 ${sourcingScore.avgPrice.toLocaleString()}원 기준.`}
                 </p>
               </div>
               <Link
@@ -178,10 +254,15 @@ export default async function KeywordDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* ── 사이드바 광고 (데스크톱 전용) ── */}
+        {/* ── 사이드바 (데스크톱 전용) ── */}
         <aside className="hidden lg:flex flex-col gap-4 w-[300px] shrink-0">
-          <AdSlot format="rectangle" label="광고" />
-          {/* 스크롤 따라오는 sticky 사이드바 */}
+          {/* 소싱 스코어 카드 */}
+          {sourcingScore && (
+            <SourcingScoreCard keyword={decoded} score={sourcingScore} />
+          )}
+
+          {/* 광고 */}
+          {!sourcingScore && <AdSlot format="rectangle" label="광고" />}
           <div className="sticky top-20">
             <AdSlot format="rectangle" label="광고" />
           </div>
@@ -190,13 +271,6 @@ export default async function KeywordDetailPage({ params }: Props) {
     </div>
   );
 }
-
-const stats = [
-  { label: "월 검색량", value: "—", change: "준비 중", changePositive: true },
-  { label: "경쟁 강도", value: "—", change: "준비 중", changePositive: true },
-  { label: "평균 판매가", value: "—", change: "준비 중", changePositive: true },
-  { label: "상품 수", value: "—", change: "준비 중", changePositive: true },
-];
 
 function relatedKeywords(base: string) {
   return [`${base} 추천`, `${base} 가성비`, `${base} 인기`, `저렴한 ${base}`, `${base} 순위`];
