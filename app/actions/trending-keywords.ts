@@ -159,3 +159,20 @@ export async function getCategoryRanking(categoryId: string): Promise<CategoryRa
 export async function getFirstCategoryRanking(): Promise<CategoryRanking | null> {
   return getCategoryRanking(KEYWORD_CATEGORIES[0].id);
 }
+
+// ────────────────────────────────────────────
+// 카테고리 랭킹 강제 갱신 (캐시 무시, 수동 버튼용)
+// ────────────────────────────────────────────
+
+export async function refreshCategoryRanking(categoryId: string): Promise<CategoryRanking | null> {
+  const category = KEYWORD_CATEGORIES.find((c) => c.id === categoryId);
+  if (!category) return null;
+
+  const keywords = await buildCategoryRanking(category);
+  return {
+    category,
+    keywords,
+    rankedAt: new Date().toISOString(),
+    fromCache: false,
+  };
+}

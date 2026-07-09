@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { KEYWORD_CATEGORIES } from "@/lib/constants/categories";
-import { getCategoryRanking } from "@/app/actions/trending-keywords";
+import { getCategoryRanking, refreshCategoryRanking } from "@/app/actions/trending-keywords";
 import type { CategoryRanking, RankedKeyword } from "@/app/actions/trending-keywords";
 
 interface TrendingKeywordsProps {
@@ -25,6 +25,7 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
     initialRanking ? { [initialRanking.category.id]: initialRanking } : {}
   );
   const [isPending, startTransition] = useTransition();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategoryId(categoryId);
@@ -38,6 +39,17 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
     });
   };
 
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    startTransition(async () => {
+      const result = await refreshCategoryRanking(activeCategoryId);
+      if (result) {
+        setRankings((prev) => ({ ...prev, [activeCategoryId]: result }));
+      }
+      setIsRefreshing(false);
+    });
+  };
+
   const current = rankings[activeCategoryId];
 
   return (
@@ -48,9 +60,25 @@ export default function TrendingKeywords({ initialRanking }: TrendingKeywordsPro
           <span className="text-lg">🔥</span>
           <h2 className="font-bold text-gray-900">오늘의 인기 키워드</h2>
         </div>
-        <span className="text-xs text-gray-400">
-          {new Date().toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} 기준
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">
+            {new Date().toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} 기준
+          </span>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing || isPending}
+            className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700 disabled:text-gray-300 transition-colors"
+            title="최신 데이터로 갱신"
+          >
+            <svg
+              className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {isRefreshing ? "갱신 중..." : "갱신"}
+          </button>
+        </div>
       </div>
 
       {/* 카테고리 탭 */}
