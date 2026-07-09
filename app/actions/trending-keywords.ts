@@ -24,13 +24,13 @@ export interface CategoryRanking {
 // 오늘 랭킹 캐시 조회
 // ────────────────────────────────────────────
 
-async function getTodayRankings(categoryLabel: string) {
+async function getTodayRankings(categoryId: string) {
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("keyword_rankings")
     .select("*")
-    .eq("category", categoryLabel)
+    .eq("category", categoryId)
     .order("rank", { ascending: true })
     .limit(TOP_N);
 
@@ -125,8 +125,8 @@ export async function getCategoryRanking(categoryId: string): Promise<CategoryRa
   const category = KEYWORD_CATEGORIES.find((c) => c.id === categoryId);
   if (!category) return null;
 
-  // 오늘 캐시 확인 (크론이 label로 저장하므로 label로 조회)
-  const cached = await getTodayRankings(category.label);
+  // 오늘 캐시 확인
+  const cached = await getTodayRankings(category.id);
 
   if (cached.length > 0) {
     return {
