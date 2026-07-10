@@ -88,6 +88,21 @@ export default async function RootLayout({
         />
         <AdScript />
         <WebSiteJsonLd />
+        {/* Google Analytics */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-QJN25CYPL4"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-QJN25CYPL4');
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen flex flex-col">
         <Navbar user={user ? { email: user.email } : null} />
