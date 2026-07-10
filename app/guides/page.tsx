@@ -22,6 +22,30 @@ export const metadata: Metadata = {
 
 const guides = [
   {
+    href: "/guides/online-shopping-startup-guide",
+    badge: "창업 가이드",
+    badgeColor: "bg-indigo-50 text-indigo-600",
+    title: "온라인 쇼핑몰 창업 완벽 가이드 2026",
+    description: "마켓 선택부터 사업자 등록, 상품 소싱, 첫 판매까지. 처음 시작하는 분을 위한 온라인 쇼핑몰 창업 7단계 가이드.",
+    tags: ["쇼핑몰 창업", "온라인 판매", "부업"],
+  },
+  {
+    href: "/guides/smartstore-beginners-guide",
+    badge: "초보 가이드",
+    badgeColor: "bg-green-50 text-green-600",
+    title: "스마트스토어 시작하기 완벽 가이드 2026",
+    description: "스마트스토어 개설부터 상품 등록, 첫 주문 처리까지. 초보 셀러를 위한 단계별 완벽 가이드.",
+    tags: ["스마트스토어 초보", "스마트스토어 개설", "첫 판매"],
+  },
+  {
+    href: "/guides/item-sourcing-guide",
+    badge: "소싱 가이드",
+    badgeColor: "bg-purple-50 text-purple-600",
+    title: "아이템 소싱 방법 완벽 가이드 2026",
+    description: "검색량 분석, 경쟁 강도 체크, 마진 계산까지 — 데이터로 팔릴 아이템을 찾는 실전 소싱 5단계 프로세스.",
+    tags: ["아이템 소싱", "소싱 방법", "상품 선정"],
+  },
+  {
     href: "/guides/margin-rate-calculation",
     badge: "마진율 계산",
     badgeColor: "bg-green-50 text-green-600",
@@ -44,6 +68,14 @@ const guides = [
     title: "쿠팡 마진 계산기 완벽 가이드 2026",
     description: "아이템위너·로켓그로스 수수료 구조와 실제 마진 계산 예시. 쿠팡에서 얼마나 남는지 정확히 파악하는 방법을 안내합니다.",
     tags: ["쿠팡", "아이템위너", "로켓그로스"],
+  },
+  {
+    href: "/guides/coupang-rocketgrowth-guide",
+    badge: "로켓그로스",
+    badgeColor: "bg-orange-50 text-orange-600",
+    title: "쿠팡 로켓그로스 완벽 가이드 2026",
+    description: "로켓그로스 수수료 구조, 아이템위너와 비교, 신청 방법까지. 언제 로켓그로스를 선택하면 유리한지 정리했습니다.",
+    tags: ["로켓그로스", "쿠팡 위탁판매", "풀필먼트"],
   },
 ];
 
