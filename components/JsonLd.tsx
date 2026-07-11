@@ -73,9 +73,10 @@ export function KeywordPageJsonLd({ keyword, trendData }: KeywordPageJsonLdProps
             {
               "@type": "Dataset",
               name: `${keyword} 네이버 검색량 트렌드 데이터`,
-              description: `네이버 데이터랩 기준 "${keyword}" 키워드의 주간 상대 검색량 지수`,
+              description: `네이버 데이터랩 API를 통해 수집한 "${keyword}" 키워드의 주간 상대 검색량 지수 데이터입니다. 0~100 범위의 상대값으로 제공되며, 스마트스토어·쿠팡 셀러의 아이템 소싱 및 트렌드 분석에 활용됩니다.`,
               url: pageUrl,
-              creator: { "@type": "Organization", name: "픽셀러" },
+              creator: { "@type": "Organization", name: "픽셀러", url: BASE_URL },
+              license: "https://creativecommons.org/licenses/by/4.0/",
               temporalCoverage: `${trendData[0]?.period}/${trendData[trendData.length - 1]?.period}`,
               variableMeasured: "상대 검색량 지수 (0~100)",
             },
