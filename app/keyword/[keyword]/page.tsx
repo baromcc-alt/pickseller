@@ -12,6 +12,9 @@ import type { KeywordTrendData } from "@/types/naver";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pickseller.co.kr";
 
+// ISR: 24시간 캐시 — 봇이 반복 접근해도 SSR 재실행 안 함
+export const revalidate = 86400;
+
 interface Props {
   params: Promise<{ keyword: string }>;
 }

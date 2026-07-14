@@ -34,7 +34,7 @@ export async function fetchShoppingProductCount(keyword: string): Promise<number
       "X-Naver-Client-Id": clientId,
       "X-Naver-Client-Secret": clientSecret,
     },
-    cache: "no-store",
+    next: { revalidate: 86400 }, // 24시간 캐시
   });
 
   if (!res.ok) {
@@ -63,7 +63,7 @@ export async function fetchShoppingAvgPrice(keyword: string): Promise<number | n
         "X-Naver-Client-Id": clientId,
         "X-Naver-Client-Secret": clientSecret,
       },
-      cache: "no-store",
+      next: { revalidate: 86400 }, // 24시간 캐시
     });
 
     if (!res.ok) return null;
