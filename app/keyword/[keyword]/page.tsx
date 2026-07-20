@@ -229,6 +229,7 @@ export default async function KeywordDetailPage({ params }: Props) {
                 <Link
                   key={kw}
                   href={`/keyword/${encodeURIComponent(kw)}`}
+                  rel="nofollow"
                   className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
                 >
                   {kw}
