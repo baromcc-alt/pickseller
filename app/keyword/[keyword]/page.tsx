@@ -7,6 +7,7 @@ import SourcingScoreCard from "@/components/SourcingScoreCard";
 import { KeywordPageJsonLd } from "@/components/JsonLd";
 import { getKeywordTrend } from "@/app/actions/keyword-trends";
 import { getSourcingScore } from "@/app/actions/sourcing-score";
+import { getKeywordAdData } from "@/app/actions/keyword-search-ad";
 import { POPULAR_KEYWORDS } from "@/app/sitemap";
 import type { KeywordTrendData } from "@/types/naver";
 
@@ -58,38 +59,47 @@ export default async function KeywordDetailPage({ params }: Props) {
     trendError = e instanceof Error ? e.message : "트렌드 데이터를 불러오지 못했습니다.";
   }
 
-  // 소싱 스코어 (DataLab + 쇼핑 API 통합) — 실패해도 페이지는 표시
-  const sourcingScore = await getSourcingScore(decoded).catch(() => null);
+  // 소싱 스코어 + 연관 키워드 — 실패해도 페이지는 표시
+  const [sourcingScore, adData] = await Promise.allSettled([
+    getSourcingScore(decoded),
+    getKeywordAdData(decoded),
+  ]).then(([s, a]) => [
+    s.status === "fulfilled" ? s.value : null,
+    a.status === "fulfilled" ? a.value : null,
+  ]);
 
   const updatedAt = trendResult
     ? new Date(trendResult.fetchedAt).toLocaleString("ko-KR")
     : new Date().toLocaleDateString("ko-KR");
 
-  // stats 카드 — 소싱 스코어 데이터로 채움
+  // stats 카드
+  const monthlyTotal = sourcingScore?.monthlyTotal ?? 0;
   const stats = [
     {
       label: "소싱 스코어",
       value: sourcingScore ? `${sourcingScore.total}점` : "—",
       change: sourcingScore ? `${sourcingScore.grade}등급 · ${sourcingScore.label}` : "준비 중",
-      changePositive: sourcingScore ? sourcingScore.total >= 25 : true,
+      changePositive: sourcingScore ? sourcingScore.total >= 50 : true,
+    },
+    {
+      label: "월 검색량",
+      value: monthlyTotal > 0
+        ? monthlyTotal >= 10000 ? `${(monthlyTotal / 10000).toFixed(1)}만` : monthlyTotal.toLocaleString("ko-KR")
+        : "—",
+      change: sourcingScore ? `PC+모바일 합산` : "준비 중",
+      changePositive: true,
+    },
+    {
+      label: "경쟁강도",
+      value: sourcingScore ? sourcingScore.compIdx : "—",
+      change: sourcingScore?.compIdx === "낮음" ? "진입 유리" : sourcingScore?.compIdx === "보통" ? "보통 수준" : "경쟁 치열",
+      changePositive: sourcingScore ? sourcingScore.compIdx !== "높음" : true,
     },
     {
       label: "트렌드",
       value: sourcingScore ? sourcingScore.direction : "—",
       change: sourcingScore ? `${sourcingScore.momentum > 0 ? "+" : ""}${sourcingScore.momentum}%` : "준비 중",
       changePositive: sourcingScore ? sourcingScore.momentum >= 0 : true,
-    },
-    {
-      label: "검색량 지수",
-      value: sourcingScore ? `${sourcingScore.recentAvg}` : "—",
-      change: "최근 4주 평균 (0~100)",
-      changePositive: true,
-    },
-    {
-      label: "검색량 변화",
-      value: sourcingScore ? `${sourcingScore.trendScore}점` : "—",
-      change: "30점 만점",
-      changePositive: sourcingScore ? sourcingScore.trendScore >= 15 : true,
     },
   ];
 
@@ -219,20 +229,37 @@ export default async function KeywordDetailPage({ params }: Props) {
             <AdSlot format="large-rectangle" label="광고" />
           </div>
 
-          {/* 연관 키워드 */}
+          {/* 연관 키워드 — 검색광고 API 실데이터 우선, fallback 수동 생성 */}
           <div className="card p-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">연관 키워드</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-gray-900">연관 키워드</h2>
+              {adData?.related && adData.related.length > 0 && (
+                <span className="text-xs text-gray-400">월 검색량 순</span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
-              {relatedKeywords(decoded).map((kw) => (
-                <Link
-                  key={kw}
-                  href={`/keyword/${encodeURIComponent(kw)}`}
-                  rel="nofollow"
-                  className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
-                >
-                  {kw}
-                </Link>
-              ))}
+              {(adData?.related && adData.related.length > 0
+                ? adData.related.slice(0, 12)
+                : relatedKeywords(decoded)
+              ).map((item) => {
+                const kw = typeof item === "string" ? item : item.relKeyword;
+                const cnt = typeof item === "string" ? 0 : item.monthlyTotalQcCnt;
+                return (
+                  <Link
+                    key={kw}
+                    href={`/keyword/${encodeURIComponent(kw)}`}
+                    rel="nofollow"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    <span>{kw}</span>
+                    {cnt > 0 && (
+                      <span className="text-xs text-blue-400">
+                        {cnt >= 10000 ? `${(cnt / 10000).toFixed(0)}만` : cnt.toLocaleString("ko-KR")}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

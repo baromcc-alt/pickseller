@@ -1,87 +1,126 @@
 /**
  * 소싱 스코어 계산 로직
  *
- * 총점 50점 = 검색량(30) + 트렌드방향(20)
- * ※ 쇼핑 검색 API 종료(2026.07.31)로 경쟁강도·평균판매가 항목 제거
+ * 총점 100점 = 검색량(40) + 경쟁강도(30) + 트렌드방향(30)
+ *
+ * 검색량·경쟁강도: 네이버 검색광고 API (실제 월 검색수)
+ * 트렌드방향:      네이버 DataLab API  (0~100 상대 지수, 없으면 중간값)
  */
 
 export type TrendDirection = "상승" | "안정" | "하락";
+export type CompLevel = "낮음" | "보통" | "높음";
 
 export interface SourcingScore {
-  total: number;            // 0~50
+  total: number;            // 0~100
   grade: "S" | "A" | "B" | "C" | "D";
   label: string;
   color: string;
   bgColor: string;
 
   // 세부 점수
-  trendScore: number;       // 0~30
-  directionScore: number;   // 0~20
+  volumeScore: number;      // 0~40  (검색량)
+  compScore: number;        // 0~30  (경쟁강도)
+  trendScore: number;       // 0~30  (트렌드 방향)
 
-  // 분석 데이터
-  recentAvg: number;        // 최근 4주 평균 검색량 (0~100)
-  olderAvg: number;         // 이전 4주 평균 검색량
+  // 원본 데이터
+  monthlyTotal: number;     // 월 총 검색수 (PC+모바일)
+  monthlyPc: number;
+  monthlyMobile: number;
+  compIdx: CompLevel;
+  recentAvg: number;        // DataLab 최근 4주 평균 (0~100)
+  olderAvg: number;
   direction: TrendDirection;
   momentum: number;         // 변화율 (%)
 }
 
-export function calcSourcingScore(
-  trendData: { period: string; ratio: number }[],
-): SourcingScore {
-  // ── 1. 검색량 점수 (0~30) ──────────────────────────────
-  const recent4 = trendData.slice(-4);
-  const older4  = trendData.slice(-8, -4);
+// ── 검색량 점수 (0~40) ────────────────────────────────
+function calcVolumeScore(monthlyTotal: number): number {
+  if (monthlyTotal >= 200000) return 40;
+  if (monthlyTotal >= 100000) return 34;
+  if (monthlyTotal >= 50000)  return 28;
+  if (monthlyTotal >= 20000)  return 21;
+  if (monthlyTotal >= 10000)  return 15;
+  if (monthlyTotal >= 3000)   return 9;
+  if (monthlyTotal >= 1000)   return 5;
+  return 2;
+}
 
-  const recentAvg = recent4.length > 0
-    ? recent4.reduce((s, d) => s + d.ratio, 0) / recent4.length
-    : 0;
-  const olderAvg = older4.length > 0
-    ? older4.reduce((s, d) => s + d.ratio, 0) / older4.length
-    : recentAvg;
+// ── 경쟁강도 점수 (0~30) ─────────────────────────────
+function calcCompScore(compIdx: CompLevel): number {
+  if (compIdx === "낮음") return 30;
+  if (compIdx === "보통") return 18;
+  return 6; // 높음
+}
 
-  const trendScore = Math.min(Math.round((recentAvg / 100) * 30), 30);
+// ── 트렌드 점수 (0~30) ───────────────────────────────
+function calcTrendScore(momentum: number): { score: number; direction: TrendDirection } {
+  if (momentum >= 10)  return { score: 30, direction: "상승" };
+  if (momentum >= -5)  return { score: 20, direction: "안정" };
+  return { score: 8, direction: "하락" };
+}
 
-  // ── 2. 트렌드 방향 점수 (0~20) ────────────────────────
-  const momentum = olderAvg > 0
-    ? Math.round(((recentAvg - olderAvg) / olderAvg) * 100)
-    : 0;
+// ── 등급 ─────────────────────────────────────────────
+function calcGrade(total: number): Pick<SourcingScore, "grade" | "label" | "color" | "bgColor"> {
+  if (total >= 80) return { grade: "S", label: "강력 추천",  color: "text-purple-700", bgColor: "bg-purple-50" };
+  if (total >= 65) return { grade: "A", label: "소싱 적합",  color: "text-blue-700",   bgColor: "bg-blue-50"   };
+  if (total >= 48) return { grade: "B", label: "검토 필요",  color: "text-green-700",  bgColor: "bg-green-50"  };
+  if (total >= 30) return { grade: "C", label: "주의",       color: "text-yellow-700", bgColor: "bg-yellow-50" };
+  return                  { grade: "D", label: "비추천",      color: "text-red-700",    bgColor: "bg-red-50"    };
+}
 
-  let direction: TrendDirection;
-  let directionScore: number;
+// ── 메인 계산 함수 ────────────────────────────────────
+export function calcSourcingScore(params: {
+  monthlyPc: number;
+  monthlyMobile: number;
+  compIdx: CompLevel;
+  trendData?: { period: string; ratio: number }[];
+}): SourcingScore {
+  const { monthlyPc, monthlyMobile, compIdx, trendData = [] } = params;
+  const monthlyTotal = monthlyPc + monthlyMobile;
 
-  if (momentum >= 10) {
-    direction = "상승"; directionScore = 20;
-  } else if (momentum >= -5) {
-    direction = "안정"; directionScore = 13;
-  } else {
-    direction = "하락"; directionScore = 5;
+  const volumeScore = calcVolumeScore(monthlyTotal);
+  const compScore   = calcCompScore(compIdx);
+
+  // DataLab 데이터가 없으면 "안정" 중간값(20점) 사용
+  let trendScore = 20;
+  let direction: TrendDirection = "안정";
+  let momentum = 0;
+  let recentAvg = 0;
+  let olderAvg  = 0;
+
+  if (trendData.length >= 4) {
+    const recent4 = trendData.slice(-4);
+    const older4  = trendData.slice(-8, -4);
+
+    recentAvg = recent4.reduce((s, d) => s + d.ratio, 0) / recent4.length;
+    olderAvg  = older4.length > 0
+      ? older4.reduce((s, d) => s + d.ratio, 0) / older4.length
+      : recentAvg;
+
+    momentum = olderAvg > 0
+      ? Math.round(((recentAvg - olderAvg) / olderAvg) * 100)
+      : 0;
+
+    const t = calcTrendScore(momentum);
+    trendScore = t.score;
+    direction  = t.direction;
   }
 
-  // ── 3. 총점 & 등급 ────────────────────────────────────
-  const total = trendScore + directionScore;
-
-  let grade: SourcingScore["grade"];
-  let label: string;
-  let color: string;
-  let bgColor: string;
-
-  if (total >= 40) {
-    grade = "S"; label = "강력 추천"; color = "text-purple-700"; bgColor = "bg-purple-50";
-  } else if (total >= 32) {
-    grade = "A"; label = "소싱 적합"; color = "text-blue-700";   bgColor = "bg-blue-50";
-  } else if (total >= 23) {
-    grade = "B"; label = "검토 필요"; color = "text-green-700";  bgColor = "bg-green-50";
-  } else if (total >= 13) {
-    grade = "C"; label = "주의";      color = "text-yellow-700"; bgColor = "bg-yellow-50";
-  } else {
-    grade = "D"; label = "비추천";    color = "text-red-700";    bgColor = "bg-red-50";
-  }
+  const total = volumeScore + compScore + trendScore;
 
   return {
-    total, grade, label, color, bgColor,
-    trendScore, directionScore,
-    recentAvg: Math.round(recentAvg * 10) / 10,
-    olderAvg: Math.round(olderAvg * 10) / 10,
-    direction, momentum,
+    total,
+    ...calcGrade(total),
+    volumeScore,
+    compScore,
+    trendScore,
+    monthlyTotal,
+    monthlyPc,
+    monthlyMobile,
+    compIdx,
+    recentAvg:  Math.round(recentAvg * 10) / 10,
+    olderAvg:   Math.round(olderAvg  * 10) / 10,
+    direction,
+    momentum,
   };
 }

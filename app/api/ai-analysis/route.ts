@@ -22,8 +22,9 @@ export async function POST(req: Request) {
 아래 데이터를 바탕으로 "${keyword}" 키워드의 소싱 가능성을 분석해주세요.
 
 [키워드 데이터]
-- 소싱 스코어: ${score.total}/50 (${score.grade}등급 · ${score.label})
-- 최근 4주 평균 검색량 지수: ${score.recentAvg}/100
+- 소싱 스코어: ${score.total}/100 (${score.grade}등급 · ${score.label})
+- 월 검색량: ${score.monthlyTotal > 0 ? `${score.monthlyTotal.toLocaleString("ko-KR")}회 (PC ${score.monthlyPc.toLocaleString("ko-KR")} + 모바일 ${score.monthlyMobile.toLocaleString("ko-KR")})` : "데이터 없음"}
+- 경쟁강도: ${score.compIdx}
 - 트렌드 방향: ${score.direction} (변화율 ${score.momentum > 0 ? "+" : ""}${score.momentum}%)
 
 [분석 요청]
