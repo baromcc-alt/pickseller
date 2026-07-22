@@ -5,7 +5,7 @@ import type { SourcingScore } from "@/lib/scoring/sourcing-score";
 
 interface Props {
   keyword: string;
-  score: SourcingScore;
+  score: SourcingScore | null;
 }
 
 export default function SourcingScoreCard({ keyword, score }: Props) {
@@ -39,14 +39,56 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
       }
 
       setDone(true);
-    } catch (e) {
+    } catch {
       setAnalysis("분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }
   };
 
-  // 원형 게이지 — 50점 만점 기준
+  // ── score가 null인 경우 (API 한도 초과 등): 간소화 카드 + AI 버튼 유지 ──
+  if (!score) {
+    return (
+      <div className="card p-6 space-y-5">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🎯</span>
+          <h2 className="font-bold text-gray-900">소싱 스코어</h2>
+        </div>
+
+        <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 flex items-center gap-3">
+          <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="12" cy="12" r="10" />
+            <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
+          </svg>
+          <p className="text-sm text-gray-500">
+            검색량 데이터를 불러오지 못했습니다.
+            <br />
+            <span className="text-xs text-gray-400">AI 분석은 키워드 특성을 바탕으로 진행됩니다.</span>
+          </p>
+        </div>
+
+        {/* AI 분석 — 데이터 없어도 항상 표시 */}
+        <div className="border-t border-gray-100 pt-4">
+          {!analysis && !loading && (
+            <button
+              onClick={handleAiAnalysis}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 px-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+              </svg>
+              AI 소싱 분석 요청
+            </button>
+          )}
+
+          {(loading || analysis) && <AiAnalysisBox loading={loading} analysis={analysis} onReset={() => { setAnalysis(""); setDone(false); }} done={done} />}
+        </div>
+      </div>
+    );
+  }
+
+  // ── score가 있는 경우: 정상 카드 ──
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score.total / 50) * circumference;
@@ -137,39 +179,12 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
         )}
 
         {(loading || analysis) && (
-          <div className="rounded-xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-purple-700">AI 소싱 분석</span>
-              {loading && (
-                <span className="flex gap-0.5 ml-1">
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-purple-400"
-                      style={{ animation: `bounce 1s ease-in-out ${i * 0.2}s infinite` }}
-                    />
-                  ))}
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {analysis}
-              {loading && <span className="inline-block w-0.5 h-4 bg-purple-400 ml-0.5 animate-pulse align-middle" />}
-            </p>
-            {done && (
-              <button
-                onClick={() => { setAnalysis(""); setDone(false); }}
-                className="mt-3 text-xs text-purple-500 hover:text-purple-700 transition-colors"
-              >
-                다시 분석하기
-              </button>
-            )}
-          </div>
+          <AiAnalysisBox
+            loading={loading}
+            analysis={analysis}
+            done={done}
+            onReset={() => { setAnalysis(""); setDone(false); }}
+          />
         )}
       </div>
 
@@ -179,6 +194,49 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
           50% { transform: translateY(-4px); opacity: 1; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function AiAnalysisBox({ loading, analysis, done, onReset }: {
+  loading: boolean;
+  analysis: string;
+  done: boolean;
+  onReset: () => void;
+}) {
+  return (
+    <div className="rounded-xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+          <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+          </svg>
+        </div>
+        <span className="text-xs font-semibold text-purple-700">AI 소싱 분석</span>
+        {loading && (
+          <span className="flex gap-0.5 ml-1">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-purple-400"
+                style={{ animation: `bounce 1s ease-in-out ${i * 0.2}s infinite` }}
+              />
+            ))}
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+        {analysis}
+        {loading && <span className="inline-block w-0.5 h-4 bg-purple-400 ml-0.5 animate-pulse align-middle" />}
+      </p>
+      {done && (
+        <button
+          onClick={onReset}
+          className="mt-3 text-xs text-purple-500 hover:text-purple-700 transition-colors"
+        >
+          다시 분석하기
+        </button>
+      )}
     </div>
   );
 }

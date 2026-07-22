@@ -209,12 +209,10 @@ export default async function KeywordDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* 모바일 전용 — 소싱 스코어 카드 */}
-          {sourcingScore && (
-            <div className="lg:hidden">
-              <SourcingScoreCard keyword={decoded} score={sourcingScore} />
-            </div>
-          )}
+          {/* 모바일 전용 — 소싱 스코어 카드 (API 실패해도 항상 표시) */}
+          <div className="lg:hidden">
+            <SourcingScoreCard keyword={decoded} score={sourcingScore} />
+          </div>
 
           {/* 모바일 중간 광고 */}
           <div className="sm:hidden flex justify-center">
@@ -259,13 +257,9 @@ export default async function KeywordDetailPage({ params }: Props) {
 
         {/* ── 사이드바 (데스크톱 전용) ── */}
         <aside className="hidden lg:flex flex-col gap-4 w-[300px] shrink-0">
-          {/* 소싱 스코어 카드 */}
-          {sourcingScore && (
-            <SourcingScoreCard keyword={decoded} score={sourcingScore} />
-          )}
+          {/* 소싱 스코어 카드 — API 실패해도 항상 표시 */}
+          <SourcingScoreCard keyword={decoded} score={sourcingScore} />
 
-          {/* 광고 */}
-          {!sourcingScore && <AdSlot format="rectangle" label="광고" />}
           <div className="sticky top-20">
             <AdSlot format="rectangle" label="광고" />
           </div>
