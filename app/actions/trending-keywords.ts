@@ -161,13 +161,40 @@ export async function getFirstCategoryRanking(): Promise<CategoryRanking | null>
 }
 
 // ────────────────────────────────────────────
-// 카테고리 랭킹 강제 갱신 (캐시 무시, 수동 버튼용)
+// 카테고리 랭킹 강제 갱신 (수동 버튼용)
+// 1시간 이내 갱신된 데이터가 있으면 캐시 반환 (API 한도 보호)
 // ────────────────────────────────────────────
 
 export async function refreshCategoryRanking(categoryId: string): Promise<CategoryRanking | null> {
   const category = KEYWORD_CATEGORIES.find((c) => c.id === categoryId);
   if (!category) return null;
 
+  // 1시간 이내 갱신된 Supabase 데이터가 있으면 캐시 반환
+  const supabase = await createClient();
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { data: recentData } = await supabase
+    .from("keyword_rankings")
+    .select("*")
+    .eq("category", categoryId)
+    .gte("created_at", oneHourAgo)
+    .order("rank", { ascending: true })
+    .limit(10);
+
+  if (recentData && recentData.length > 0) {
+    return {
+      category,
+      keywords: recentData.map((r) => ({
+        rank: r.rank,
+        keyword: r.keyword,
+        score: r.score,
+        trend: r.trend as RankedKeyword["trend"],
+      })),
+      rankedAt: recentData[0].created_at,
+      fromCache: true,
+    };
+  }
+
+  // 1시간 이상 지난 경우에만 API 호출
   const keywords = await buildCategoryRanking(category);
   return {
     category,
