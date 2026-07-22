@@ -46,10 +46,10 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
     }
   };
 
-  // 원형 게이지용 SVG 계산
+  // 원형 게이지 — 50점 만점 기준
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score.total / 100) * circumference;
+  const offset = circumference - (score.total / 50) * circumference;
 
   const gaugeColor =
     score.grade === "S" ? "#7c3aed" :
@@ -70,9 +70,7 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
         {/* 원형 게이지 */}
         <div className="relative shrink-0">
           <svg width="128" height="128" viewBox="0 0 128 128">
-            {/* 배경 원 */}
             <circle cx="64" cy="64" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="12" />
-            {/* 점수 원 */}
             <circle
               cx="64" cy="64" r={radius}
               fill="none"
@@ -85,10 +83,9 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
               style={{ transition: "stroke-dashoffset 0.8s ease" }}
             />
           </svg>
-          {/* 중앙 텍스트 */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-bold" style={{ color: gaugeColor }}>{score.total}</span>
-            <span className="text-xs text-gray-400 -mt-0.5">/ 100</span>
+            <span className="text-xs text-gray-400 -mt-0.5">/ 50</span>
           </div>
         </div>
 
@@ -101,9 +98,8 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
           </div>
 
           <div className="space-y-2">
-            <ScoreBar label="검색량" value={score.trendScore} max={40} color={gaugeColor} />
-            <ScoreBar label="트렌드" value={score.directionScore} max={30} color={gaugeColor} />
-            <ScoreBar label="경쟁강도" value={score.competitionScore} max={30} color={gaugeColor} />
+            <ScoreBar label="검색량" value={score.trendScore} max={30} color={gaugeColor} />
+            <ScoreBar label="트렌드" value={score.directionScore} max={20} color={gaugeColor} />
           </div>
         </div>
       </div>
@@ -118,25 +114,11 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
           iconColor={score.direction === "상승" ? "text-red-500" : score.direction === "하락" ? "text-blue-500" : "text-gray-400"}
         />
         <DataChip
-          label="경쟁 강도"
-          value={score.competitionLevel}
-          sub={`상품 ${score.productCount.toLocaleString()}개`}
-          icon="📦"
-        />
-        <DataChip
           label="검색량 지수"
           value={`${score.recentAvg} / 100`}
           sub="최근 4주 평균"
           icon="🔍"
         />
-        {score.avgPrice && (
-          <DataChip
-            label="평균 판매가"
-            value={`${score.avgPrice.toLocaleString()}원`}
-            sub="네이버 쇼핑 기준"
-            icon="💰"
-          />
-        )}
       </div>
 
       {/* AI 분석 */}

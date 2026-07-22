@@ -71,7 +71,7 @@ export default async function KeywordDetailPage({ params }: Props) {
       label: "소싱 스코어",
       value: sourcingScore ? `${sourcingScore.total}점` : "—",
       change: sourcingScore ? `${sourcingScore.grade}등급 · ${sourcingScore.label}` : "준비 중",
-      changePositive: sourcingScore ? sourcingScore.total >= 50 : true,
+      changePositive: sourcingScore ? sourcingScore.total >= 25 : true,
     },
     {
       label: "트렌드",
@@ -80,16 +80,16 @@ export default async function KeywordDetailPage({ params }: Props) {
       changePositive: sourcingScore ? sourcingScore.momentum >= 0 : true,
     },
     {
-      label: "경쟁 강도",
-      value: sourcingScore ? sourcingScore.competitionLevel : "—",
-      change: sourcingScore ? `상품 ${sourcingScore.productCount.toLocaleString()}개` : "준비 중",
-      changePositive: sourcingScore ? sourcingScore.competitionScore >= 20 : true,
+      label: "검색량 지수",
+      value: sourcingScore ? `${sourcingScore.recentAvg}` : "—",
+      change: "최근 4주 평균 (0~100)",
+      changePositive: true,
     },
     {
-      label: "평균 판매가",
-      value: sourcingScore?.avgPrice ? `${sourcingScore.avgPrice.toLocaleString()}원` : "—",
-      change: "네이버 쇼핑 기준",
-      changePositive: true,
+      label: "검색량 변화",
+      value: sourcingScore ? `${sourcingScore.trendScore}점` : "—",
+      change: "30점 만점",
+      changePositive: sourcingScore ? sourcingScore.trendScore >= 15 : true,
     },
   ];
 
@@ -245,7 +245,6 @@ export default async function KeywordDetailPage({ params }: Props) {
                 <h2 className="font-semibold text-gray-900 mb-1">수익성을 계산해보세요</h2>
                 <p className="text-sm text-gray-500">
                   &ldquo;{decoded}&rdquo; 상품의 예상 마진을 바로 계산할 수 있습니다.
-                  {sourcingScore?.avgPrice && ` 평균 판매가 ${sourcingScore.avgPrice.toLocaleString()}원 기준.`}
                 </p>
               </div>
               <Link
