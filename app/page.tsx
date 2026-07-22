@@ -236,6 +236,12 @@ const aiPreviewCards = [
 
 const guideLinks = [
   {
+    href: "/guides/ai-sourcing-analysis",
+    badge: "AI 분석",
+    badgeColor: "bg-purple-50 text-purple-600",
+    title: "AI 소싱 분석이란? 작동 원리 & 활용법",
+  },
+  {
     href: "/guides/margin-rate-calculation",
     badge: "마진율 계산",
     badgeColor: "bg-green-50 text-green-600",
@@ -246,12 +252,6 @@ const guideLinks = [
     badge: "수수료 가이드",
     badgeColor: "bg-blue-50 text-blue-600",
     title: "스마트스토어 수수료 완벽 가이드 2026",
-  },
-  {
-    href: "/guides/coupang-margin-calculator",
-    badge: "마진 계산기",
-    badgeColor: "bg-orange-50 text-orange-600",
-    title: "쿠팡 마진 계산기 완벽 가이드 2026",
   },
 ];
 

@@ -22,6 +22,14 @@ export const metadata: Metadata = {
 
 const guides = [
   {
+    href: "/guides/ai-sourcing-analysis",
+    badge: "AI 분석",
+    badgeColor: "bg-purple-50 text-purple-600",
+    title: "AI 소싱 분석이란? 작동 원리 & 활용법 완벽 가이드",
+    description: "픽셀러의 AI 소싱 분석이 어떻게 작동하는지 알아보세요. 네이버 검색량 데이터와 Claude AI가 소싱 가능성을 50점 만점으로 평가하고 셀러 전략을 제안하는 원리를 설명합니다.",
+    tags: ["AI 소싱 분석", "소싱 스코어", "키워드 분석"],
+  },
+  {
     href: "/guides/online-shopping-startup-guide",
     badge: "창업 가이드",
     badgeColor: "bg-indigo-50 text-indigo-600",
