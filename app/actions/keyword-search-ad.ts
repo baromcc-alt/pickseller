@@ -7,18 +7,19 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
 
 export interface KeywordAdResult {
   keyword: string;
-  exact: KeywordAdItem | null;       // 입력 키워드 정확히 일치하는 항목
-  related: KeywordAdItem[];          // 연관 키워드 (exact 제외, 최대 20개)
+  exact: KeywordAdItem | null;
+  related: KeywordAdItem[];
   fetchedAt: string;
   fromCache: boolean;
 }
 
+// ── 검색광고 API 데이터 조회 (캐시 포함) ─────────────────────
 export async function getKeywordAdData(keyword: string): Promise<KeywordAdResult | null> {
   const supabase = await createClient();
   const normalized = keyword.trim().toLowerCase();
   const now = new Date();
 
-  // ── 1. Supabase 캐시 확인 ──────────────────────────────
+  // 1. 캐시 확인
   const { data: cached } = await supabase
     .from("keyword_ad_data")
     .select("*")
@@ -40,16 +41,14 @@ export async function getKeywordAdData(keyword: string): Promise<KeywordAdResult
     }
   }
 
-  // ── 2. API 호출 ───────────────────────────────────────
+  // 2. API 호출
   try {
     const items = await fetchKeywordAdData(keyword);
 
-    // 입력 키워드와 정확히 일치하는 항목 추출
     const exact = items.find(
       (item) => item.relKeyword.trim().toLowerCase() === normalized
     ) ?? null;
 
-    // 연관 키워드 (exact 제외, 검색량 내림차순, 최대 20개)
     const related = items
       .filter((item) => item.relKeyword.trim().toLowerCase() !== normalized)
       .sort((a, b) => b.monthlyTotalQcCnt - a.monthlyTotalQcCnt)
@@ -57,7 +56,7 @@ export async function getKeywordAdData(keyword: string): Promise<KeywordAdResult
 
     const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
 
-    // ── 3. Supabase 캐시 저장 ────────────────────────────
+    // 3. 캐시 저장
     await supabase.from("keyword_ad_data").upsert(
       {
         keyword: normalized,
@@ -78,7 +77,6 @@ export async function getKeywordAdData(keyword: string): Promise<KeywordAdResult
     };
   } catch (e) {
     console.error("[getKeywordAdData] API 오류:", e);
-    // API 실패 시 stale 캐시라도 반환
     if (cached) {
       return {
         keyword: normalized,
@@ -91,3 +89,4 @@ export async function getKeywordAdData(keyword: string): Promise<KeywordAdResult
     return null;
   }
 }
+

@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import TrendChart from "@/components/TrendChart";
 import AdSlot from "@/components/ads/AdSlot";
 import SourcingScoreCard from "@/components/SourcingScoreCard";
 import { KeywordPageJsonLd } from "@/components/JsonLd";
-import { getKeywordTrend } from "@/app/actions/keyword-trends";
 import { getSourcingScore } from "@/app/actions/sourcing-score";
 import { getKeywordAdData } from "@/app/actions/keyword-search-ad";
 import { POPULAR_KEYWORDS } from "@/app/sitemap";
-import type { KeywordTrendData } from "@/types/naver";
+import type { KeywordAdItem } from "@/lib/naver/search-ad";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pickseller.co.kr";
 
@@ -32,9 +30,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pageUrl = `${BASE_URL}/keyword/${encodeURIComponent(decoded)}`;
 
   return {
-    title: `"${decoded}" 키워드 분석 — 소싱 스코어, 검색량 트렌드`,
-    description: `네이버 쇼핑 "${decoded}" 키워드의 소싱 스코어, 월별 검색량 트렌드, 경쟁 강도를 무료로 분석합니다. 스마트스토어·쿠팡 셀러를 위한 데이터 기반 아이템 소싱 도구.`,
-    keywords: [decoded, `${decoded} 검색량`, `${decoded} 트렌드`, `${decoded} 소싱`, "키워드 분석", "아이템 소싱"],
+    title: `"${decoded}" 키워드 분석 — 소싱 스코어, 경쟁강도, 연관 키워드`,
+    description: `네이버 "${decoded}" 키워드의 소싱 스코어, 월 검색량, 경쟁강도를 무료로 분석합니다. 스마트스토어·쿠팡 셀러를 위한 데이터 기반 아이템 소싱 도구.`,
+    keywords: [decoded, `${decoded} 검색량`, `${decoded} 소싱`, `${decoded} 경쟁강도`, "키워드 분석", "아이템 소싱"],
     alternates: { canonical: pageUrl },
     openGraph: {
       url: pageUrl,
@@ -50,15 +48,6 @@ export default async function KeywordDetailPage({ params }: Props) {
 
   if (!decoded.trim()) notFound();
 
-  let trendResult: { trends: KeywordTrendData[]; fromCache: boolean; fetchedAt: string } | null = null;
-  let trendError: string | null = null;
-
-  try {
-    trendResult = await getKeywordTrend(decoded, 3);
-  } catch (e) {
-    trendError = e instanceof Error ? e.message : "트렌드 데이터를 불러오지 못했습니다.";
-  }
-
   // 소싱 스코어 + 연관 키워드 — 실패해도 페이지는 표시
   const [sourcingScore, adData] = await Promise.allSettled([
     getSourcingScore(decoded),
@@ -68,9 +57,12 @@ export default async function KeywordDetailPage({ params }: Props) {
     a.status === "fulfilled" ? a.value : null,
   ]);
 
-  const updatedAt = trendResult
-    ? new Date(trendResult.fetchedAt).toLocaleString("ko-KR")
+  const updatedAt = adData?.fetchedAt
+    ? new Date(adData.fetchedAt).toLocaleString("ko-KR")
     : new Date().toLocaleDateString("ko-KR");
+
+  // 소싱 기회 키워드: 검색량 높고 경쟁 낮음/보통 순 정렬
+  const opportunityKeywords = getOpportunityKeywords(adData?.related ?? []);
 
   // stats 카드
   const monthlyTotal = sourcingScore?.monthlyTotal ?? 0;
@@ -105,10 +97,7 @@ export default async function KeywordDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <KeywordPageJsonLd
-        keyword={decoded}
-        trendData={trendResult?.trends?.map((t) => ({ period: t.period, ratio: t.ratio })) ?? []}
-      />
+      <KeywordPageJsonLd keyword={decoded} trendData={[]} />
 
       {/* 브레드크럼 */}
       <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4">
@@ -133,16 +122,11 @@ export default async function KeywordDetailPage({ params }: Props) {
           <h1 className="text-3xl font-bold text-gray-900">
             &ldquo;{decoded}&rdquo; 키워드 분석
           </h1>
-          {trendResult?.fromCache && (
+          {adData?.fromCache && (
             <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">캐시됨</span>
           )}
         </div>
-        <p className="text-gray-400 text-sm">
-          업데이트: {updatedAt}
-          {trendResult && !trendResult.fromCache && (
-            <span className="ml-2 text-blue-400">· 네이버 API 실시간</span>
-          )}
-        </p>
+        <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
       </div>
 
       {/* 기능 설명 배너 */}
@@ -156,16 +140,16 @@ export default async function KeywordDetailPage({ params }: Props) {
             <div>
               <p className="text-sm font-medium text-gray-800">소싱 스코어 확인</p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                검색량·트렌드·경쟁 강도를 종합해 이 키워드가 <strong>지금 팔기 좋은지</strong> 0~100점으로 평가합니다.
+                검색량·경쟁강도·트렌드를 종합해 이 키워드가 <strong>지금 팔기 좋은지</strong> 0~100점으로 평가합니다.
               </p>
             </div>
           </div>
           <div className="flex items-start gap-2.5">
-            <span className="text-base shrink-0 mt-0.5">📈</span>
+            <span className="text-base shrink-0 mt-0.5">💡</span>
             <div>
-              <p className="text-sm font-medium text-gray-800">검색량 트렌드 분석</p>
+              <p className="text-sm font-medium text-gray-800">대체 소싱 키워드 발굴</p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                최근 3개월 네이버 검색량 흐름으로 <strong>지금이 진입 타이밍인지</strong> 판단하세요.
+                연관 키워드 중 <strong>검색량 대비 경쟁이 낮은</strong> 소싱 기회 아이템을 자동으로 추려드립니다.
               </p>
             </div>
           </div>
@@ -198,25 +182,6 @@ export default async function KeywordDetailPage({ params }: Props) {
                 </p>
               </div>
             ))}
-          </div>
-
-          {/* 트렌드 차트 */}
-          <div className="card p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base font-semibold text-gray-900">검색량 트렌드</h2>
-              <span className="text-xs text-gray-400">최근 3개월 · 주간</span>
-            </div>
-            {trendError ? (
-              <div className="flex items-center gap-2 text-sm text-red-400 bg-red-50 rounded-lg px-4 py-3">
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10" />
-                  <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
-                </svg>
-                {trendError}
-              </div>
-            ) : (
-              <TrendChart data={trendResult?.trends ?? []} keyword={decoded} />
-            )}
           </div>
 
           {/* 모바일 전용 — 소싱 스코어 카드 (API 실패해도 항상 표시) */}
@@ -263,6 +228,52 @@ export default async function KeywordDetailPage({ params }: Props) {
             </div>
           </div>
 
+          {/* 대체 가능한 아이템 — 소싱 기회 키워드 */}
+          {opportunityKeywords.length > 0 && (
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-base font-semibold text-gray-900">💡 지금 노려볼 만한 아이템</h2>
+                <span className="text-xs text-gray-400">검색량 대비 경쟁 낮음 순</span>
+              </div>
+              <p className="text-xs text-gray-400 mb-4">
+                &ldquo;{decoded}&rdquo; 연관 키워드 중 검색량은 충분하고 경쟁강도가 낮은 소싱 기회 키워드입니다.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {opportunityKeywords.map((item) => (
+                  <Link
+                    key={item.relKeyword}
+                    href={`/keyword/${encodeURIComponent(item.relKeyword)}`}
+                    className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-100 px-4 py-3 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm font-medium text-gray-800 truncate group-hover:text-blue-700">
+                        {item.relKeyword}
+                      </span>
+                      <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                        item.compIdx === "낮음"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}>
+                        {item.compIdx}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <span className="text-xs text-gray-500">
+                        {item.monthlyTotalQcCnt >= 10000
+                          ? `${(item.monthlyTotalQcCnt / 10000).toFixed(1)}만`
+                          : item.monthlyTotalQcCnt.toLocaleString("ko-KR")}
+                      </span>
+                      <span className="text-xs text-gray-300">검색/월</span>
+                      <svg className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* 마진 계산 CTA */}
           <div className="card p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -298,4 +309,17 @@ export default async function KeywordDetailPage({ params }: Props) {
 
 function relatedKeywords(base: string) {
   return [`${base} 추천`, `${base} 가성비`, `${base} 인기`, `저렴한 ${base}`, `${base} 순위`];
+}
+
+// 소싱 기회 키워드: 낮음/보통 경쟁강도 우선, 검색량 높은 순 top 8
+function getOpportunityKeywords(related: KeywordAdItem[]): KeywordAdItem[] {
+  const compMultiplier = (c: string) => c === "낮음" ? 1.5 : c === "보통" ? 1.0 : 0;
+  return [...related]
+    .filter((item) => item.compIdx !== "높음" && item.monthlyTotalQcCnt >= 100)
+    .sort((a, b) => {
+      const scoreA = a.monthlyTotalQcCnt * compMultiplier(a.compIdx);
+      const scoreB = b.monthlyTotalQcCnt * compMultiplier(b.compIdx);
+      return scoreB - scoreA;
+    })
+    .slice(0, 8);
 }
