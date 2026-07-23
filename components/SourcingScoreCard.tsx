@@ -154,10 +154,12 @@ export default function SourcingScoreCard({ keyword, score }: Props) {
           iconColor={score.direction === "상승" ? "text-red-500" : score.direction === "하락" ? "text-blue-500" : "text-gray-400"}
         />
         <DataChip
-          label="DataLab 지수"
-          value={score.recentAvg > 0 ? `${score.recentAvg}` : "—"}
-          sub="최근 4주 평균 (0~100)"
-          icon="📊"
+          label="모바일 비율"
+          value={score.monthlyTotal > 0
+            ? `${Math.round((score.monthlyMobile / score.monthlyTotal) * 100)}%`
+            : "—"}
+          sub="전체 검색 중 모바일"
+          icon="📱"
         />
       </div>
 
