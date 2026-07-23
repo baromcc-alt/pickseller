@@ -129,6 +129,17 @@ export default async function KeywordDetailPage({ params }: Props) {
         <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
       </div>
 
+      {/* 키워드 소개 텍스트 — 고유 콘텐츠 */}
+      <div className="mb-6 prose-custom">
+        <KeywordIntro
+          keyword={decoded}
+          monthlyTotal={sourcingScore?.monthlyTotal ?? adData?.monthlyTotalQcCnt ?? 0}
+          compIdx={sourcingScore?.compIdx ?? adData?.compIdx ?? ""}
+          score={sourcingScore?.total ?? null}
+          relatedSample={(adData?.related ?? []).slice(0, 3).map((r) => r.relKeyword)}
+        />
+      </div>
+
       {/* 기능 설명 배너 */}
       <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50/60 px-5 py-4">
         <p className="text-sm font-semibold text-blue-800 mb-3">
@@ -303,6 +314,72 @@ export default async function KeywordDetailPage({ params }: Props) {
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+// ── 키워드 소개 텍스트 컴포넌트 ──────────────────────────────
+interface KeywordIntroProps {
+  keyword: string;
+  monthlyTotal: number;
+  compIdx: string;
+  score: number | null;
+  relatedSample: string[];
+}
+
+function KeywordIntro({ keyword, monthlyTotal, compIdx, score, relatedSample }: KeywordIntroProps) {
+  // 검색량 구간 표현
+  const volumeDesc =
+    monthlyTotal >= 100000
+      ? `월 ${(monthlyTotal / 10000).toFixed(0)}만 건 이상 검색되는 대형 카테고리`
+      : monthlyTotal >= 30000
+      ? `월 약 ${(monthlyTotal / 10000).toFixed(1)}만 건 검색되는 인기 카테고리`
+      : monthlyTotal >= 10000
+      ? `월 약 ${(monthlyTotal / 10000).toFixed(1)}만 건 검색되는 꾸준한 수요 아이템`
+      : monthlyTotal >= 3000
+      ? `월 약 ${monthlyTotal.toLocaleString("ko-KR")}건 검색되는 중간 규모 아이템`
+      : monthlyTotal >= 500
+      ? `월 약 ${monthlyTotal.toLocaleString("ko-KR")}건 검색되는 틈새 아이템`
+      : "네이버 쇼핑에서 검색 수요가 있는 아이템";
+
+  // 경쟁강도 설명
+  const compDesc =
+    compIdx === "낮음"
+      ? "경쟁강도가 낮아 신규 셀러도 진입하기 유리한 편입니다."
+      : compIdx === "보통"
+      ? "경쟁강도가 보통 수준으로, 상품 품질과 상세페이지 최적화가 당락을 가릅니다."
+      : compIdx === "높음"
+      ? "경쟁강도가 높아 가격·리뷰·상세페이지 등 전방위 경쟁이 필요합니다."
+      : "경쟁 데이터를 분석 중입니다.";
+
+  // 소싱 스코어 기반 총평
+  const scoreDesc =
+    score === null
+      ? null
+      : score >= 70
+      ? `소싱 스코어 ${score}점으로, 검색량과 경쟁 구도 모두 셀러에게 유리한 상황입니다.`
+      : score >= 50
+      ? `소싱 스코어 ${score}점으로 평균 이상입니다. 연관 키워드 중 더 좋은 기회를 찾아볼 수 있습니다.`
+      : score >= 30
+      ? `소싱 스코어 ${score}점입니다. 경쟁이 있는 편이므로, 아래 '지금 노려볼 만한 아이템'을 참고해 틈새 키워드를 노려보세요.`
+      : `소싱 스코어 ${score}점으로 진입 난이도가 높습니다. 연관 키워드 중 경쟁이 낮은 대안을 찾는 것을 권장합니다.`;
+
+  // 연관 키워드 언급
+  const relatedText =
+    relatedSample.length >= 2
+      ? `연관 키워드로는 ${relatedSample.slice(0, 3).join(", ")} 등이 함께 검색됩니다.`
+      : null;
+
+  return (
+    <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
+      <p>
+        <strong className="text-gray-800">&ldquo;{keyword}&rdquo;</strong>은(는) {volumeDesc}입니다.{" "}
+        {compDesc}
+        {relatedText && ` ${relatedText}`}
+      </p>
+      {scoreDesc && (
+        <p>{scoreDesc} 아래 소싱 스코어 세부 지표와 AI 분석을 통해 소싱 전략을 세워보세요.</p>
+      )}
     </div>
   );
 }
