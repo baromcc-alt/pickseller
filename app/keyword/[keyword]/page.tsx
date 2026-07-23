@@ -107,6 +107,11 @@ export default async function KeywordDetailPage({ params }: Props) {
         <span className="text-gray-700 font-medium">{decoded}</span>
       </nav>
 
+      {/* 인라인 검색바 */}
+      <div className="mb-5">
+        <InlineKeywordSearch currentKeyword={decoded} />
+      </div>
+
       {/* 헤더 */}
       <div className="mb-4">
         <div className="flex items-center gap-3 mb-1">
@@ -118,11 +123,6 @@ export default async function KeywordDetailPage({ params }: Props) {
           )}
         </div>
         <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
-      </div>
-
-      {/* 인라인 검색바 */}
-      <div className="mb-5">
-        <InlineKeywordSearch currentKeyword={decoded} />
       </div>
 
       {/* 상단 광고 */}
