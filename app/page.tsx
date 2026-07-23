@@ -26,23 +26,13 @@ export default async function HomePage() {
 
       {/* ── 히어로 + 검색창 ── */}
       <section className="text-center pt-8 pb-10">
-        <div className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-          </svg>
-          AI 소싱 분석 무료 제공
-        </div>
-
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-          키워드 하나면
+          키워드 하나로
           <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-            AI가 소싱 가능성을 분석합니다
+            AI 소싱 분석
           </span>
         </h1>
-        <p className="text-lg text-gray-500 mb-8 max-w-xl mx-auto">
-          검색량 트렌드 · 소싱 스코어 · AI 전략 제안까지. 완전 무료.
-        </p>
 
         {/* 검색창 — 히어로 중앙 배치 */}
         <div className="max-w-2xl mx-auto">

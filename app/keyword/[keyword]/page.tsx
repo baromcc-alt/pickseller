@@ -8,6 +8,7 @@ import { getSourcingScore } from "@/app/actions/sourcing-score";
 import { getKeywordAdData } from "@/app/actions/keyword-search-ad";
 import { POPULAR_KEYWORDS } from "@/app/sitemap";
 import type { KeywordAdItem } from "@/lib/naver/search-ad";
+import { InlineKeywordSearch } from "@/components/KeywordSearchForm";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pickseller.co.kr";
 
@@ -117,16 +118,21 @@ export default async function KeywordDetailPage({ params }: Props) {
       </div>
 
       {/* 헤더 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-3xl font-bold text-gray-900">
-            &ldquo;{decoded}&rdquo; 키워드 분석
-          </h1>
-          {adData?.fromCache && (
-            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">캐시됨</span>
-          )}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-bold text-gray-900">
+              &ldquo;{decoded}&rdquo; 키워드 분석
+            </h1>
+            {adData?.fromCache && (
+              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">캐시됨</span>
+            )}
+          </div>
+          <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
         </div>
-        <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
+        <div className="shrink-0">
+          <InlineKeywordSearch currentKeyword={decoded} />
+        </div>
       </div>
 
       {/* 키워드 소개 텍스트 — 고유 콘텐츠 */}
