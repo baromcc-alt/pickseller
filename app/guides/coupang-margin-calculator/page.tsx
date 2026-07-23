@@ -230,6 +230,79 @@ export default function CoupangMarginCalculatorPage() {
             </Link>
           </section>
 
+          {/* 4. 쿠팡 반품·CS 비용 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">마진 계산 시 놓치기 쉬운 숨은 비용</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              수수료와 배송비만 계산하면 실제 마진보다 높게 나옵니다.
+              아래 비용 항목도 반드시 포함해 계산하세요.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  icon: "↩️",
+                  title: "반품·교환 비용",
+                  desc: "쿠팡 평균 반품율은 3~8%. 반품 시 왕복 배송비 5,000~7,000원이 셀러 부담입니다. 카테고리 반품율을 파악해 마진에 반영하세요.",
+                },
+                {
+                  icon: "📦",
+                  title: "포장재 비용",
+                  desc: "박스·완충재·테이프·라벨 등 포장재 비용은 건당 200~1,500원 수준. 상품 크기에 따라 달라지며 박스 구매 단위에 따라 단가 차이가 큽니다.",
+                },
+                {
+                  icon: "💻",
+                  title: "광고비 (CPC)",
+                  desc: "쿠팡 검색광고 CPC는 키워드당 100~500원 이상. 매출 대비 광고비율(ACoS)을 항상 모니터링하고, 목표 ACoS를 미리 마진에서 빼두세요.",
+                },
+                {
+                  icon: "🏷️",
+                  title: "할인·쿠폰 비용",
+                  desc: "쿠팡 로켓배송 상품에 자주 붙는 쿠폰·할인은 실질 마진을 줄입니다. 판매 촉진을 위한 할인 여력이 있는지 사전에 계산하세요.",
+                },
+                {
+                  icon: "🏢",
+                  title: "보관료 (로켓그로스)",
+                  desc: "로켓그로스 이용 시 재고가 60일 이상 쌓이면 장기 보관료가 발생합니다. 재고 회전율이 낮은 상품은 보관료가 마진을 잠식할 수 있습니다.",
+                },
+                {
+                  icon: "📞",
+                  title: "CS 처리 시간 비용",
+                  desc: "고객 문의·분쟁 처리에 드는 시간도 비용입니다. 특히 상품 불량·누락 클레임이 많은 카테고리는 CS 비용을 반영해 판매가를 책정해야 합니다.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="card p-4 flex gap-3">
+                  <span className="text-xl shrink-0">{item.icon}</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 5. 손익분기 계산 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">손익분기 수량 계산하기</h2>
+            <p className="text-gray-600 leading-relaxed mb-4">
+              손익분기(BEP) 수량이란 고정비를 회수하는 데 필요한 최소 판매 수량입니다.
+              초기 재고 매입비·포장재 구매비 등 고정 지출이 있다면 반드시 계산해두세요.
+            </p>
+            <div className="card p-6 space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4 text-sm">
+                <p className="font-semibold text-gray-700 mb-2">손익분기 수량 공식</p>
+                <div className="font-mono text-blue-700">
+                  BEP 수량 = 고정비 합계 ÷ 건당 순이익
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p><strong>예시:</strong> 포장재 구입비 20만원을 고정비로 지출했고, 건당 순이익이 5,000원이라면</p>
+                <p className="font-mono text-gray-800">200,000 ÷ 5,000 = <strong className="text-green-600">40개</strong> 이상 판매해야 초기 비용 회수</p>
+              </div>
+              <p className="text-xs text-gray-400">픽셀러 마진 계산기에서 손익분기 수량을 자동으로 계산해드립니다.</p>
+            </div>
+          </section>
+
           {/* FAQ */}
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">자주 묻는 질문</h2>

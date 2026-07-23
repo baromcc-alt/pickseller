@@ -201,7 +201,94 @@ export default function ItemSourcingGuidePage() {
             </div>
           </section>
 
-          {/* 4. 소싱 스코어 CTA */}
+          {/* 4. 시즌별 소싱 캘린더 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">시즌별 소싱 캘린더 — 언제 무엇을 준비할까</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              이커머스에서 타이밍은 매출을 2~3배 차이 나게 합니다.
+              시즌 상품은 <strong>판매 시작 6~8주 전</strong>에 소싱을 완료해야 재고를 확보할 수 있습니다.
+            </p>
+            <div className="space-y-3">
+              {[
+                { month: "1~2월", items: "핫팩, 난방용품, 설 선물세트, 다이어트 용품 (새해 결심)", tip: "12월 중순부터 소싱 준비" },
+                { month: "3~4월", items: "봄 의류·신발, 캠핑 용품, 꽃가루 마스크, 자전거 액세서리", tip: "2월 말부터 준비" },
+                { month: "5~6월", items: "어버이날 선물, 스포츠용품, 여름 의류, 선크림·자외선차단제", tip: "4월부터 선물세트 구성" },
+                { month: "7~8월", items: "에어컨·선풍기 주변기기, 수영용품, 캠핑·물놀이 용품, 제습제", tip: "6월부터 재고 확보" },
+                { month: "9~10월", items: "추석 선물세트, 등산·아웃도어, 핼러윈 소품, 가을 의류", tip: "8월 초부터 명절 준비" },
+                { month: "11~12월", items: "크리스마스 소품, 연말 선물, 패딩·방한용품, 가습기", tip: "10월부터 소싱 완료 필수" },
+              ].map((row) => (
+                <div key={row.month} className="card p-4 flex gap-4 items-start">
+                  <div className="shrink-0 w-14 text-center">
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">{row.month}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-800 mb-0.5">{row.items}</p>
+                    <p className="text-xs text-gray-400">💡 {row.tip}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 5. 소싱 실패 사례 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">소싱 실패 사례 — 이것만은 피하세요</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              많은 셀러들이 비슷한 이유로 소싱에서 실패합니다. 아래 사례를 미리 파악하고 같은 실수를 반복하지 마세요.
+            </p>
+            <div className="space-y-4">
+              {[
+                {
+                  title: "💸 마진 계산 없이 \"싸게 샀다\"만 믿고 주문",
+                  desc: "매입가가 싸도 배송비·수수료·반품 손실을 합산하면 마진이 거의 없거나 마이너스가 되는 경우가 많습니다. 반드시 플랫폼 수수료(쿠팡 10~12%, 스마트스토어 9.34%)를 포함한 실제 마진을 계산해야 합니다.",
+                },
+                {
+                  title: "📦 검증 없이 대량 재고 선주문",
+                  desc: "테스트 없이 바로 500개, 1,000개를 주문했다가 판매가 안 돼 재고 창고비·폐기 비용이 발생하는 사례가 빈번합니다. 10~50개로 시장 반응을 먼저 확인하는 것이 원칙입니다.",
+                },
+                {
+                  title: "🔴 레드오션 아이템 진입",
+                  desc: "무선이어폰, 텀블러, 마스크팩 같은 인기 카테고리는 이미 대형 셀러·브랜드가 점유하고 있어 초보 셀러가 상위에 노출되기 거의 불가능합니다. 픽셀러로 경쟁강도를 먼저 확인하고, '낮음' 또는 '보통' 키워드에 집중하세요.",
+                },
+                {
+                  title: "🚚 납기·품질 검증 없이 새 소싱처 거래",
+                  desc: "중국 소싱처의 경우 실제 납품 품질이 샘플과 다르거나, 납기가 크게 지연되는 경우가 많습니다. 소량 시험 거래 후 품질·납기를 검증하고 본 거래로 이어가세요.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="card p-5 border-l-4 border-red-200">
+                  <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 6. AI 소싱 분석 활용법 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">AI 소싱 분석으로 더 빠르게 판단하기</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              픽셀러의 AI 소싱 분석은 검색량·경쟁강도·트렌드 데이터를 Claude AI가 해석해
+              셀러 관점의 판단을 즉시 제공합니다. 데이터는 있지만 "결국 소싱해야 하는가"라는 판단이 어려울 때 활용하세요.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {[
+                { icon: "📊", title: "시장 상황 해석", desc: "검색량과 트렌드를 바탕으로 현재 시장이 성장 중인지, 포화 상태인지 분석합니다." },
+                { icon: "🎯", title: "소싱 적합도 평가", desc: "이 키워드로 지금 판매를 시작하기 적합한지 솔직하게 평가합니다." },
+                { icon: "💡", title: "전략 팁 제공", desc: "가격 포지셔닝, 키워드 전략, 차별화 방향 등 실용적인 조언을 제공합니다." },
+                { icon: "⚡", title: "즉시 분석", desc: "키워드 입력 후 AI 분석 버튼 한 번으로 3~5초 내 결과를 받을 수 있습니다." },
+              ].map((item) => (
+                <div key={item.title} className="card p-4 flex gap-3">
+                  <span className="text-xl shrink-0">{item.icon}</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 7. 소싱 스코어 CTA */}
           <section className="card p-8 text-center bg-purple-50 border-purple-200">
             <h2 className="text-xl font-bold text-gray-900 mb-2">키워드 소싱 스코어 무료 확인</h2>
             <p className="text-gray-600 text-sm mb-6">

@@ -181,7 +181,105 @@ export default function SmartstoreBeginnersGuidePage() {
             </div>
           </section>
 
-          {/* 5. 마진 계산기 CTA */}
+          {/* 5. 상품명 최적화 & 네이버 쇼핑 SEO */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">상품명 최적화 & 네이버 쇼핑 SEO</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              네이버 쇼핑에서 상위에 노출되려면 <strong>상품명 구성</strong>이 가장 중요합니다.
+              네이버 쇼핑은 상품명을 기반으로 검색 결과를 결정하기 때문에,
+              고객이 실제로 검색하는 키워드를 상품명에 포함시켜야 합니다.
+            </p>
+            <div className="space-y-4">
+              <div className="card p-5">
+                <h3 className="font-semibold text-gray-900 mb-3">효과적인 상품명 구성 공식</h3>
+                <div className="bg-blue-50 rounded-lg p-4 font-mono text-sm text-blue-800 mb-3">
+                  [핵심 키워드] + [세부 특성] + [브랜드 or 부가 정보]
+                </div>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p>❌ <span className="text-red-500">나쁜 예:</span> "프리미엄 에코백 신상품 예쁜 가방"</p>
+                  <p>✅ <span className="text-green-600">좋은 예:</span> "캔버스 에코백 대용량 숄더백 여성 천가방 학생가방"</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { title: "키워드 순서", desc: "가장 검색량이 많은 핵심 키워드를 상품명 앞쪽에 배치합니다. 뒤에 있는 키워드는 가중치가 낮습니다." },
+                  { title: "중복 키워드 피하기", desc: "같은 단어를 반복 사용하면 스팸으로 처리될 수 있습니다. 유사어를 활용해 다양한 검색어를 커버하세요." },
+                  { title: "특수문자 최소화", desc: "!, *, ~ 같은 특수문자는 검색 노출에 도움이 되지 않습니다. 슬래시(/)만 허용됩니다." },
+                  { title: "픽셀러로 키워드 확인", desc: "상품명에 넣을 키워드를 결정하기 전, 픽셀러에서 실제 검색량과 경쟁강도를 먼저 확인하세요." },
+                ].map((tip) => (
+                  <div key={tip.title} className="card p-4">
+                    <h4 className="font-semibold text-gray-900 text-sm mb-1">{tip.title}</h4>
+                    <p className="text-xs text-gray-500 leading-relaxed">{tip.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 6. 스마트스토어 등급 혜택 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">스마트스토어 판매자 등급과 혜택</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              네이버는 판매자를 새싹, 씨앗, 스타트, 파워, 빅파워, 프리미엄 6단계로 분류합니다.
+              등급이 높을수록 수수료 혜택, 광고 지원, 정산 주기 개선 등 다양한 혜택이 제공됩니다.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left p-3 border border-gray-200 font-semibold text-gray-700">등급</th>
+                    <th className="text-left p-3 border border-gray-200 font-semibold text-gray-700">조건 (최근 3개월)</th>
+                    <th className="text-left p-3 border border-gray-200 font-semibold text-gray-700">주요 혜택</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { grade: "🌱 새싹", cond: "가입 후 3개월 미만", benefit: "기본 판매 환경" },
+                    { grade: "🌾 씨앗", cond: "구매확정 50건 이상", benefit: "N페이 포인트 적립 연동" },
+                    { grade: "⭐ 스타트", cond: "판매건수 300건·매출 800만원", benefit: "정산 주기 개선" },
+                    { grade: "⚡ 파워", cond: "판매건수 1,500건·매출 4,000만원", benefit: "수수료 0.1%p 할인, 광고 크레딧" },
+                    { grade: "🔥 빅파워", cond: "판매건수 4,500건·매출 1억2천만원", benefit: "수수료 0.2%p 할인, 우선 고객 지원" },
+                    { grade: "👑 프리미엄", cond: "판매건수 1만건·매출 5억원", benefit: "수수료 0.3%p 할인, 전담 매니저" },
+                  ].map((row) => (
+                    <tr key={row.grade} className="border-b border-gray-100">
+                      <td className="p-3 border border-gray-200 font-medium text-gray-800">{row.grade}</td>
+                      <td className="p-3 border border-gray-200 text-gray-600">{row.cond}</td>
+                      <td className="p-3 border border-gray-200 text-gray-600">{row.benefit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">※ 등급 기준은 네이버 정책 변경에 따라 바뀔 수 있습니다.</p>
+          </section>
+
+          {/* 7. 초기 마케팅 전략 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">초보 셀러를 위한 초기 마케팅 전략</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              처음에는 광고 없이 오가닉 판매를 목표로 합니다. 리뷰가 쌓이고 전환율이 검증된 후
+              네이버 쇼핑 검색광고를 추가하면 ROI가 높아집니다.
+            </p>
+            <div className="space-y-3">
+              {[
+                { phase: "1단계 (0~30일)", title: "리뷰 0개 극복", desc: "지인을 통한 초기 구매 유도, 리뷰 작성 요청 쿠폰 발행. 리뷰 5개만 있어도 전환율이 크게 오릅니다." },
+                { phase: "2단계 (30~90일)", title: "네이버 쇼핑 최적화", desc: "상품명·카테고리·태그 최적화. 배송 속도와 CS 응답 속도를 높여 구매 만족도 지수(판매자 점수)를 올립니다." },
+                { phase: "3단계 (90일 이후)", title: "쇼핑검색광고 진입", desc: "검색광고 키워드를 소량·저단가로 테스트하며 전환율 높은 키워드를 찾습니다. ROAS 목표를 600% 이상으로 설정하세요." },
+              ].map((item) => (
+                <div key={item.phase} className="card p-5">
+                  <div className="flex gap-4">
+                    <div className="shrink-0 bg-gray-100 rounded-lg px-3 py-2 text-xs font-bold text-gray-500 h-fit">{item.phase}</div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 8. 마진 계산기 CTA */}
           <section className="card p-8 text-center bg-blue-50 border-blue-200">
             <h2 className="text-xl font-bold text-gray-900 mb-2">판매 전 마진부터 계산하세요</h2>
             <p className="text-gray-600 text-sm mb-6">

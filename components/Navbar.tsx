@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/compare", label: "키워드비교" },
   { href: "/margin-calculator", label: "마진계산기" },
   { href: "/guides", label: "가이드" },
+  { href: "/about", label: "소개" },
 ];
 
 export default function Navbar({ user }: NavbarProps) {
