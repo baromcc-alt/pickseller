@@ -107,6 +107,24 @@ export default async function KeywordDetailPage({ params }: Props) {
         <span className="text-gray-700 font-medium">{decoded}</span>
       </nav>
 
+      {/* 헤더 */}
+      <div className="mb-4">
+        <div className="flex items-center gap-3 mb-1">
+          <h1 className="text-3xl font-bold text-gray-900">
+            &ldquo;{decoded}&rdquo; 키워드 분석
+          </h1>
+          {adData?.fromCache && (
+            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">캐시됨</span>
+          )}
+        </div>
+        <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
+      </div>
+
+      {/* 인라인 검색바 */}
+      <div className="mb-5">
+        <InlineKeywordSearch currentKeyword={decoded} />
+      </div>
+
       {/* 상단 광고 */}
       <div className="mb-6 flex justify-center">
         <div className="hidden sm:block w-full max-w-[728px]">
@@ -114,24 +132,6 @@ export default async function KeywordDetailPage({ params }: Props) {
         </div>
         <div className="sm:hidden w-full max-w-[320px]">
           <AdSlot format="mobile-banner" label="광고" />
-        </div>
-      </div>
-
-      {/* 헤더 */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-bold text-gray-900">
-              &ldquo;{decoded}&rdquo; 키워드 분석
-            </h1>
-            {adData?.fromCache && (
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">캐시됨</span>
-            )}
-          </div>
-          <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
-        </div>
-        <div className="shrink-0">
-          <InlineKeywordSearch currentKeyword={decoded} />
         </div>
       </div>
 
