@@ -192,7 +192,105 @@ export default function OnlineShoppingStartupGuidePage() {
             </div>
           </section>
 
-          {/* 4. CTA */}
+          {/* 4. 세금·세무 기초 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">온라인 셀러가 알아야 할 세금 기초</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              처음에는 세금이 복잡하게 느껴지지만, 온라인 셀러에게 실질적으로 중요한 세금은 딱 두 가지입니다.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <div className="card p-5">
+                <h3 className="font-semibold text-gray-900 mb-2">부가가치세 (VAT)</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• 일반과세자: 매출의 10% → 매입 세금계산서로 공제 가능</li>
+                  <li>• 간이과세자: 연 매출 1억400만원 미만, 낮은 세율 적용</li>
+                  <li>• 신고 주기: 1월·7월 (반기별 신고)</li>
+                  <li className="text-blue-600">✅ 팁: 매입 세금계산서 수령 시 VAT 환급 가능</li>
+                </ul>
+              </div>
+              <div className="card p-5">
+                <h3 className="font-semibold text-gray-900 mb-2">종합소득세</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• 매년 5월 신고 (전년도 사업 소득)</li>
+                  <li>• 세율: 소득에 따라 6%~45% 누진세</li>
+                  <li>• 경비 처리: 매입비, 배송비, 포장재 등 비용 공제</li>
+                  <li className="text-blue-600">✅ 팁: 경비 영수증은 꼭 보관하세요</li>
+                </ul>
+              </div>
+            </div>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              <strong>⚠️ 주의:</strong> 연 매출 4,800만원 이상이면 사업자 등록 의무. 미등록 시 가산세 부과됩니다. 세무 신고가 처음이라면 국세청 홈택스 또는 세무사 상담을 권장합니다.
+            </div>
+          </section>
+
+          {/* 5. 온라인 쇼핑몰 실패 원인 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">온라인 쇼핑몰 실패 원인 TOP 5</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              처음 시작하는 분들이 가장 많이 하는 실수입니다. 사전에 알고 피하면 성공 확률이 높아집니다.
+            </p>
+            <div className="space-y-3">
+              {[
+                { rank: "01", title: "아이템 선정 실패", desc: "감으로 상품을 고르는 경우입니다. '이거 좋아 보인다'로 주문하면 재고가 쌓입니다. 반드시 검색량 데이터와 경쟁강도를 확인한 후 소싱하세요.", color: "text-red-500" },
+                { rank: "02", title: "마진 계산 없이 판매 시작", desc: "수수료, 배송비, 포장비, 반품비를 빼면 마진이 거의 없거나 손해인 경우가 많습니다. 판매가 설정 전 반드시 마진 계산기로 순이익을 확인하세요.", color: "text-red-500" },
+                { rank: "03", title: "대량 재고 선주문", desc: "검증 없이 대량 재고를 미리 잡는 것은 초보의 전형적인 실수입니다. 반드시 소량 테스트 후 판매 가능성을 검증하고 재주문하세요.", color: "text-orange-500" },
+                { rank: "04", title: "상세페이지 품질 저하", desc: "낮은 품질의 사진과 정보 부재 상세페이지는 구매 전환율을 떨어뜨립니다. 모바일에서 보기 좋은 세로형 상세페이지를 만들어야 합니다.", color: "text-orange-500" },
+                { rank: "05", title: "CS 방치", desc: "리뷰와 문의에 응답하지 않으면 마켓 노출이 하락합니다. 하루 1~2회 빠르게 응답하는 습관만으로도 경쟁 셀러보다 노출에서 유리해집니다.", color: "text-yellow-600" },
+              ].map((item) => (
+                <div key={item.rank} className="card p-4 flex gap-4 items-start">
+                  <span className={`font-black text-lg shrink-0 ${item.color}`}>{item.rank}</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 6. 멀티채널 전략 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">성장 단계별 멀티채널 전략</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              처음에는 1개 채널 집중이 옳습니다. 안정적인 매출이 나온 후 단계적으로 확장하세요.
+            </p>
+            <div className="space-y-3">
+              {[
+                {
+                  phase: "1단계 · 0~3개월",
+                  color: "bg-gray-100 text-gray-600",
+                  channels: "스마트스토어 1개",
+                  goal: "소량 테스트, 판매 데이터 확보, CS 루틴 만들기",
+                  memo: "이 단계에서 채널을 늘리면 집중력이 분산됩니다."
+                },
+                {
+                  phase: "2단계 · 3~6개월",
+                  color: "bg-blue-100 text-blue-700",
+                  channels: "스마트스토어 + 쿠팡 아이템위너",
+                  goal: "쿠팡 트래픽으로 판매량 확장, 수익성 검증",
+                  memo: "스마트스토어 판매가 안정되면 동일 상품을 쿠팡에도 등록."
+                },
+                {
+                  phase: "3단계 · 6개월 이후",
+                  color: "bg-indigo-100 text-indigo-700",
+                  channels: "전 채널 + 자사몰 브랜딩 준비",
+                  goal: "채널 의존도 분산, 브랜드 구축, 단가 상향",
+                  memo: "수익이 안정되면 자사몰·SNS 마케팅으로 브랜드화."
+                },
+              ].map((row) => (
+                <div key={row.phase} className="card p-4">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${row.color}`}>{row.phase}</span>
+                    <span className="text-sm font-semibold text-gray-900">{row.channels}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">{row.goal}</p>
+                  <p className="text-xs text-gray-400 mt-1">💬 {row.memo}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 7. CTA */}
           <section className="card p-8 text-center bg-indigo-50 border-indigo-200">
             <h2 className="text-xl font-bold text-gray-900 mb-2">아이템 수익성, 미리 계산해보세요</h2>
             <p className="text-gray-600 text-sm mb-6">

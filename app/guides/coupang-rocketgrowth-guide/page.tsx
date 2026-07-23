@@ -187,7 +187,113 @@ export default function CoupangRocketgrowthGuidePage() {
             </div>
           </section>
 
-          {/* 5. 마진 계산기 CTA */}
+          {/* 5. 로켓그로스 적합 상품 기준 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">로켓그로스에 적합한 상품 기준</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              모든 상품이 로켓그로스에 유리한 것은 아닙니다. 아래 기준을 충족할수록 로켓그로스 효과가 높습니다.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {[
+                { check: "✅", title: "단가 15,000원 이상", desc: "물류비(출고비 700~1,500원) 비중이 마진에 미치는 영향이 작아집니다." },
+                { check: "✅", title: "월 50개 이상 판매 가능", desc: "재고 회전율이 높아야 보관비 부담이 줄어듭니다." },
+                { check: "✅", title: "표준 포장 가능한 상품", desc: "불규칙한 모양이나 과도하게 무거운 상품은 물류 비용이 추가됩니다." },
+                { check: "✅", title: "반품률 5% 이하 예상", desc: "로켓그로스 반품도 셀러 비용이 발생하므로 반품이 적은 상품이 유리합니다." },
+                { check: "❌", title: "단가 5,000원 이하 소품", desc: "물류비가 마진의 30~50%를 차지해 수익이 거의 없을 수 있습니다." },
+                { check: "❌", title: "시즌성 강한 상품", desc: "시즌 종료 후 재고가 남으면 장기 보관료가 발생합니다. 재고 예측이 어렵습니다." },
+              ].map((item) => (
+                <div key={item.title} className="card p-4 flex gap-3">
+                  <span className="text-lg shrink-0">{item.check}</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 6. 재고 관리 전략 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">로켓그로스 재고 관리 전략</h2>
+            <p className="text-gray-600 leading-relaxed mb-5">
+              로켓그로스에서 수익을 극대화하려면 <strong>재고 회전율 관리</strong>가 핵심입니다.
+              재고가 60일 이상 물류센터에 쌓이면 장기 보관료가 급증합니다.
+            </p>
+            <div className="space-y-4">
+              <div className="card p-5">
+                <h3 className="font-semibold text-gray-900 mb-3">재고 수량 계산 공식</h3>
+                <div className="bg-gray-50 rounded-lg p-4 font-mono text-sm text-gray-700 mb-3">
+                  입고 수량 = 일 평균 판매량 × 리드타임(일) × 안전재고 배수(1.3~1.5)
+                </div>
+                <p className="text-xs text-gray-500">
+                  예: 하루 5개 판매 × 소싱 리드타임 14일 × 1.3 = <strong>약 91개</strong> 입고 권장
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { icon: "📊", title: "Wing 재고 현황 주 1회 확인", desc: "판매속도 대비 재고일수(DOH)를 항상 파악하세요." },
+                  { icon: "⚡", title: "30일치 재고 기준 유지", desc: "60일치 이상 쌓이면 장기 보관료 발생. 30일 기준이 최적입니다." },
+                  { icon: "🔄", title: "시즌 전 재고 회수 계획", desc: "시즌 종료 4~6주 전에 재고 회수 신청을 준비하세요." },
+                ].map((tip) => (
+                  <div key={tip.title} className="card p-4 text-center">
+                    <div className="text-2xl mb-2">{tip.icon}</div>
+                    <h4 className="font-semibold text-gray-900 text-xs mb-1">{tip.title}</h4>
+                    <p className="text-xs text-gray-400 leading-relaxed">{tip.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 7. 실제 비용 비교 예시 */}
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">아이템위너 vs 로켓그로스 실제 비용 비교</h2>
+            <p className="text-gray-600 leading-relaxed mb-4">판매가 30,000원 상품 100개 판매 기준 비교입니다.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="card p-5">
+                <h3 className="font-semibold text-gray-900 mb-3 text-center">아이템위너</h3>
+                <div className="space-y-2 text-sm">
+                  {[
+                    ["판매 수수료 (10.8%)", "−324,000원"],
+                    ["직접 배송비 (3,000원×100)", "−300,000원"],
+                    ["포장재 (500원×100)", "−50,000원"],
+                  ].map(([label, val]) => (
+                    <div key={label} className="flex justify-between">
+                      <span className="text-gray-500">{label}</span>
+                      <span className="text-red-400">{val}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-gray-100 pt-2 flex justify-between font-bold">
+                    <span className="text-gray-700">총 비용</span>
+                    <span className="text-red-500">−674,000원</span>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-5 border-orange-200 bg-orange-50/30">
+                <h3 className="font-semibold text-gray-900 mb-3 text-center">로켓그로스</h3>
+                <div className="space-y-2 text-sm">
+                  {[
+                    ["판매 수수료 (10.8%)", "−324,000원"],
+                    ["출고비 (1,000원×100)", "−100,000원"],
+                    ["입고비 + 보관비 (추산)", "−50,000원"],
+                  ].map(([label, val]) => (
+                    <div key={label} className="flex justify-between">
+                      <span className="text-gray-500">{label}</span>
+                      <span className="text-red-400">{val}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-gray-100 pt-2 flex justify-between font-bold">
+                    <span className="text-gray-700">총 비용</span>
+                    <span className="text-orange-600">−474,000원</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-3 text-center">※ 로켓그로스가 약 20만원 절감. 단, 전환율·노출 우위 효과는 별도.</p>
+          </section>
+
+          {/* 8. 마진 계산기 CTA */}
           <section className="card p-8 text-center bg-orange-50 border-orange-200">
             <h2 className="text-xl font-bold text-gray-900 mb-2">로켓그로스 마진 지금 계산하기</h2>
             <p className="text-gray-600 text-sm mb-6">
