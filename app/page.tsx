@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import KeywordSearchForm from "@/components/KeywordSearchForm";
-import AdSlot from "@/components/ads/AdSlot";
 import TrendingKeywords from "@/components/TrendingKeywords";
 import FaqSection from "@/components/FaqSection";
 import { HomeFaqJsonLd } from "@/components/JsonLd";
@@ -42,16 +41,6 @@ export default async function HomePage() {
         <p className="text-xs text-gray-400 mt-3">
           예: 무선이어폰, 캠핑의자, 아이패드케이스
         </p>
-      </section>
-
-      {/* ── 상단 광고 ── */}
-      <section className="mb-10 flex justify-center">
-        <div className="hidden sm:block w-full max-w-[728px]">
-          <AdSlot format="leaderboard" label="광고" />
-        </div>
-        <div className="sm:hidden w-full max-w-[320px]">
-          <AdSlot format="mobile-banner" label="광고" />
-        </div>
       </section>
 
       {/* ── AI 분석 미리보기 ── */}
@@ -145,8 +134,6 @@ export default async function HomePage() {
             </Link>
           ))}
 
-          {/* 사이드 광고 */}
-          <AdSlot format="rectangle" label="광고" className="mt-2" />
         </div>
       </section>
 
@@ -179,10 +166,6 @@ export default async function HomePage() {
       {/* ── FAQ ── */}
       <FaqSection />
 
-      {/* ── 하단 광고 ── */}
-      <section className="flex justify-center">
-        <AdSlot format="large-rectangle" label="광고" />
-      </section>
     </div>
   );
 }

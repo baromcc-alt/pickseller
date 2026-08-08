@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import AdSlot from "@/components/ads/AdSlot";
 import { KEYWORD_CATEGORIES, getCategoryById } from "@/lib/constants/categories";
 import { getCategoryRanking } from "@/app/actions/trending-keywords";
 
@@ -70,16 +69,6 @@ export default async function CategoryPage({
         <p className="text-gray-500">
           네이버 데이터랩 기반 인기 키워드 TOP 10 · 매일 업데이트
         </p>
-      </div>
-
-      {/* 상단 광고 */}
-      <div className="mb-8 flex justify-center">
-        <div className="hidden sm:block">
-          <AdSlot format="leaderboard" label="광고" />
-        </div>
-        <div className="sm:hidden">
-          <AdSlot format="mobile-banner" label="광고" />
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -193,7 +182,6 @@ export default async function CategoryPage({
             </div>
           </div>
 
-          <AdSlot format="rectangle" label="광고" />
         </div>
       </div>
     </div>

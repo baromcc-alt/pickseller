@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import AdSlot from "@/components/ads/AdSlot";
 import SourcingScoreCard from "@/components/SourcingScoreCard";
 import { KeywordPageJsonLd } from "@/components/JsonLd";
 import { getSourcingScore } from "@/app/actions/sourcing-score";
@@ -125,16 +124,6 @@ export default async function KeywordDetailPage({ params }: Props) {
         <p className="text-gray-400 text-sm">업데이트: {updatedAt}</p>
       </div>
 
-      {/* 상단 광고 */}
-      <div className="mb-6 flex justify-center">
-        <div className="hidden sm:block w-full max-w-[728px]">
-          <AdSlot format="leaderboard" label="광고" />
-        </div>
-        <div className="sm:hidden w-full max-w-[320px]">
-          <AdSlot format="mobile-banner" label="광고" />
-        </div>
-      </div>
-
       {/* 키워드 소개 텍스트 — 고유 콘텐츠 */}
       <div className="mb-6 prose-custom">
         <KeywordIntro
@@ -214,11 +203,6 @@ export default async function KeywordDetailPage({ params }: Props) {
           {/* 모바일 전용 — 소싱 스코어 카드 (API 실패해도 항상 표시) */}
           <div className="lg:hidden">
             <SourcingScoreCard keyword={decoded} score={sourcingScore} />
-          </div>
-
-          {/* 모바일 중간 광고 */}
-          <div className="sm:hidden flex justify-center">
-            <AdSlot format="large-rectangle" label="광고" />
           </div>
 
           {/* 연관 키워드 — 검색광고 API 실데이터 우선, fallback 수동 생성 */}
@@ -325,9 +309,6 @@ export default async function KeywordDetailPage({ params }: Props) {
           {/* 소싱 스코어 카드 — API 실패해도 항상 표시 */}
           <SourcingScoreCard keyword={decoded} score={sourcingScore} />
 
-          <div className="sticky top-20">
-            <AdSlot format="rectangle" label="광고" />
-          </div>
         </aside>
       </div>
     </div>
